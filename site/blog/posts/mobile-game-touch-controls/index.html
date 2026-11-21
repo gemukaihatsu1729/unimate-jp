@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>スマホブラウザで「移動しながら攻撃」を実現する Pointer Events マルチタッチ仮想スティック実装 | Unimate JP</title>
+    <meta
+      name="description"
+      content="スマートフォンブラウザ上で左親指の移動スティック・右親指の攻撃ボタン・画面スワイプによるカメラ回転を同時操作するための Pointer Events と CSS セーフエリア設計を解説します。"
+    />
+    <link rel="canonical" href="https://unimate-jp.com/blog/posts/mobile-game-touch-controls/" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="Unimate JP" />
+    <meta property="og:title" content="スマホブラウザで「移動しながら攻撃」を実現する Pointer Events マルチタッチ仮想スティック実装" />
+    <meta
+      property="og:description"
+      content="pointerIdによるマルチタッチ分離、setPointerCapture、デッドゾーン・スプリント判定、誤スクロール防止のCSS設計を実コード付きで紹介します。"
+    />
+    <meta property="og:url" content="https://unimate-jp.com/blog/posts/mobile-game-touch-controls/" />
+    <meta property="og:image" content="https://unimate-jp.com/games/mousoutero/og-image.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="/">
+          <img class="brand-mark" src="/favicon.svg" alt="" width="34" height="34" />
+          <span>Unimate JP</span>
+        </a>
+        <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-label="メニューを開く">☰</button>
+        <nav class="nav-links" data-nav-menu aria-label="メインナビゲーション">
+          <a href="/">ホーム</a>
+          <a href="/games/">ゲーム</a>
+          <a href="/portfolio/">ポートフォリオ</a>
+          <a href="/blog/" aria-current="page">ブログ</a>
+          <a href="/about/">運営情報</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="section">
+      <div class="prose-container">
+        <nav class="breadcrumb" aria-label="パンくずリスト">
+          <a href="/">ホーム</a>
+          <span>/</span>
+          <a href="/blog/">ブログ</a>
+          <span>/</span>
+          <span>マルチタッチ仮想スティック実装</span>
+        </nav>
+
+        <article class="article-shell">
+          <div class="tag-row">
+            <span class="tag">Pointer Events</span>
+            <span class="tag tag-neutral">モバイルUI</span>
+            <span class="tag tag-neutral">TypeScript</span>
+          </div>
+          <h1>スマホブラウザで「移動しながら攻撃」を実現する Pointer Events マルチタッチ仮想スティック実装</h1>
+          <div class="article-meta">
+            <span>公開日: 2026-11-21</span>
+            <span>カテゴリ: ゲーム開発・UI設計</span>
+          </div>
+
+          <p>
+            スマートフォンのブラウザでアクションゲームを動かそうとすると、PC向けのマウスイベント（<code>mousedown</code> / <code>mousemove</code>）だけでは「左手でキャラクターを動かしながら、右手で攻撃や回避ボタンを連打する」操作が成立しません。
+            さらにモバイルブラウザ特有の「画面のスクロール・引っ張り更新（Pull-to-refresh）・ダブルタップ拡大・文字選択」が暴発すると、一気に遊びにくくなります。
+          </p>
+          <p>
+            この記事では、<a href="/games/mousoutero/">授業中妄想クライシス</a> と <a href="/games/zonbi/">SHELTER MUSOU</a> で採用している
+            <code>TouchInputManager</code> の設計をもとに、快適なマルチタッチ操作を作るための実装パターンを解説します。
+          </p>
+
+          <h2>1. なぜ Touch Events ではなく Pointer Events なのか</h2>
+          <p>
+            昔の実装では <code>touchstart</code> / <code>touchmove</code> を使うのが定番でしたが、現在ではマウス・タッチ・スタイラスを同じコードで扱え、指1本ごとに一意の <code>e.pointerId</code> が発行される <strong>Pointer Events</strong>（<code>pointerdown</code> / <code>pointermove</code> / <code>pointerup</code> / <code>pointercancel</code>）が非常に扱いやすいです。
+          </p>
+          <ul>
+            <li>PCのマウスでデバッグするときも、スマホの実機タッチと全く同じイベント経路を通る</li>
+            <li>指ごとに <code>pointerId</code> を保持するだけで、スティック・カメラ・各ボタンが互いに干渉しない</li>
+            <li><code>element.setPointerCapture(e.pointerId)</code> を呼んでおけば、指がスティック枠の外側へ滑っても追従し続ける</li>
+          </ul>
+
+          <h2>2. 仮想スティックの計算：デッドゾーンとスプリント判定</h2>
+          <p>
+            ジョイスティックの入力処理では、親指が少し触れただけの誤動作を防ぐ「デッドゾーン」と、最大まで倒したときの「ダッシュ（スプリント）判定」を入れると手触りが格段に良くなります。
+          </p>
+          <pre><code>const dx = clientX - this.joyOriginX;
+const dy = clientY - this.joyOriginY;
+const dist = Math.hypot(dx, dy);
+const clamped = Math.min(dist, this.joyMaxRadius);
+const angle = Math.atan2(dy, dx);
+
+const kx = Math.cos(angle) * clamped;
+const ky = Math.sin(angle) * clamped;
+const norm = clamped / this.joyMaxRadius;
+
+if (norm &lt; 0.12) {
+  // 12%未満は遊び（デッドゾーン）として移動しない
+  this.moveX = 0;
+  this.moveY = 0;
+  this.sprinting = false;
+} else {
+  this.moveX = kx / this.joyMaxRadius;
+  this.moveY = -(ky / this.joyMaxRadius); // 画面上向きを前進(+1)に変換
+  this.sprinting = norm &gt; 0.82; // 82%以上倒すとダッシュ
+}</code></pre>
+          <p>
+            また、指を離したとき（<code>pointerup</code>）だけでなく、通知バナーや画面端ジェスチャーで入力が中断されたときの <code>pointercancel</code> でも同じリセット処理を呼ぶのが、移動入力が押しっぱなしになるバグを防ぐ鉄則です。
+          </p>
+
+          <h2>3. 攻撃ボタン連打・長押しをゲームループ側へ安全に渡す</h2>
+          <p>
+            UIイベントはブラウザの描画フレームとは非同期に飛んでくるため、イベント内で直接攻撃関数を呼ぶのではなく、「キュー（フラグ）」に積んでおき、<code>requestAnimationFrame</code> のゲームループ先頭で <code>consumeState()</code> によって回収する構成にしています。
+            また <code>bindButton</code> 内で <code>e.preventDefault(); e.stopPropagation();</code> を呼ぶことで、ボタンの下にある背景のカメラスワイプ領域へイベントが貫通しないようにしています。
+          </p>
+
+          <h2>4. モバイルブラウザの誤動作を封じる CSS ルール</h2>
+          <p>
+            JavaScript 側の制御に加えて、CSS 側で以下の設定を入れておくと実機での快適さが大きく変わります。
+          </p>
+          <ul>
+            <li><strong><code>touch-action: none;</code></strong>：ゲーム画面・操作ボタン上でピンチズームやスクロールを無効化（スクロールが必要なリザルト画面のみ <code>touch-action: pan-y;</code> を許可）。</li>
+            <li><strong><code>user-select: none; -webkit-user-select: none;</code></strong>：ボタン長押し時にテキスト選択メニューが出るのを防止。</li>
+            <li><strong><code>env(safe-area-inset-bottom)</code></strong>：iPhone のホームバーに仮想スティックや攻撃ボタンが重ならないよう余白を確保。</li>
+            <li><strong>入力欄フォントサイズ <code>16px</code> 以上</strong>：「授業中妄想クライシス」の名前入力欄のようにテキスト入力がある箇所は <code>font-size: 16px</code> にし、iOS の自動ズームインを回避。</li>
+          </ul>
+
+          <div class="callout">
+            実際のマルチタッチ操作は <a href="/games/mousoutero/">授業中妄想クライシス</a> および
+            <a href="/games/zonbi/">SHELTER MUSOU</a> で、移動スティック＋攻撃＋回避を同時に押しながら試すことができます。
+          </div>
+
+          <div class="related-posts">
+            <h3>あわせて読みたい関連記事</h3>
+            <ul>
+              <li><a href="/blog/posts/threejs-mobile-3d-musou/">Three.js と TypeScript でスマホ向け3D無双ゲームを作る設計ポイント</a></li>
+              <li><a href="/blog/posts/web-audio-api-game-sfx/">外部音声ファイルゼロ！Web Audio API でブラウザゲームの効果音を合成する実装手法</a></li>
+              <li><a href="/blog/posts/browser-game-adsense-ux-design/">ブラウザゲームの広告配置と誤クリック防止設計：600ms遅延・ボタン間150px・CLSゼロ</a></li>
+            </ul>
+          </div>
+
+          <p><a class="btn btn-outline btn-sm" href="/blog/">← ブログ記事一覧へ戻る</a></p>
+        </article>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer-grid">
+          <div>
+            <a class="footer-brand" href="/">
+              <img class="brand-mark" src="/favicon.svg" alt="" width="30" height="30" />
+              <span>Unimate JP</span>
+            </a>
+            <p class="footer-desc">オリジナル無料ブラウザゲーム、個人制作ポートフォリオ、Web技術・開発ブログを発信するサイトです。</p>
+          </div>
+          <div class="footer-col">
+            <h4>コンテンツ</h4>
+            <ul>
+              <li><a href="/games/">ゲームポータル</a></li>
+              <li><a href="/portfolio/">ポートフォリオ</a></li>
+              <li><a href="/blog/">開発ブログ</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>サイト情報</h4>
+            <ul>
+              <li><a href="/about/">運営者情報</a></li>
+              <li><a href="/privacy/">プライバシーポリシー</a></li>
+              <li><a href="/contact/">お問い合わせ</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <span>© 2026 Unimate JP (unimate-jp.com). All rights reserved.</span>
+          <span>Powered by Cloudflare</span>
+        </div>
+      </div>
+    </footer>
+
+    <script type="module" src="/src/scripts/main.ts"></script>
+  </body>
+</html>

@@ -103,7 +103,17 @@
           <p>
             新しいゲームを追加したいときは <code>games/&lt;新しいゲーム名&gt;/</code> に Vite プロジェクトを置き、ポータルページに紹介カードを追加するだけで自動ビルド対象になります。
             ブログ記事も <code>site/blog/posts/&lt;記事スラッグ&gt;/index.html</code> を追加すれば Vite のマルチページ検出によって自動でビルドされるため、制作そのものに集中できる環境が整いました。
+            （最終的には <code>wrangler.jsonc</code> を配置し、Cloudflare 公式推奨の Workers Static Assets 構成で運用しています。）
           </p>
+
+          <div class="related-posts">
+            <h3>あわせて読みたい関連記事</h3>
+            <ul>
+              <li><a href="/blog/posts/browser-game-adsense-ux-design/">ブラウザゲームの広告配置と誤クリック防止設計：600ms遅延・ボタン間150px・CLSゼロ</a></li>
+              <li><a href="/blog/posts/threejs-mobile-3d-musou/">Three.js と TypeScript でスマホ向け3D無双ゲームを作る設計ポイント</a></li>
+              <li><a href="/blog/posts/math-expression-parser-vitest/">「1/√2」と「√2/2」を同じ正解と判定する：数学ゲーム向け数式パーサー設計と Vitest 自動テスト</a></li>
+            </ul>
+          </div>
 
           <p><a class="btn btn-outline btn-sm" href="/blog/">← ブログ記事一覧へ戻る</a></p>
         </article>
@@ -139,7 +149,7 @@
         </div>
         <div class="footer-bottom">
           <span>© 2026 Unimate JP (unimate-jp.com). All rights reserved.</span>
-          <span>Powered by Cloudflare Pages</span>
+          <span>Powered by Cloudflare</span>
         </div>
       </div>
     </footer>

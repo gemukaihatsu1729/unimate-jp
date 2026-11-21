@@ -6,7 +6,7 @@
     <title>開発ブログ — ゲーム制作・Web技術の記録 | Unimate JP</title>
     <meta
       name="description"
-      content="Unimate JP の開発ブログ。Three.js を使ったスマホ向け3Dブラウザゲーム開発、数学ゲームの設計、Cloudflare Pages モノレポ運用などの記事を公開しています。"
+      content="Unimate JP の開発ブログ。Three.js、Web Audio API、Pointer Events マルチタッチ、数式パーサー＆Vitestテスト、ブラウザゲームの安全広告設計など全8本の技術記事を公開しています。"
     />
     <link rel="canonical" href="https://unimate-jp.com/blog/" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -15,7 +15,7 @@
     <meta property="og:title" content="開発ブログ — ゲーム制作・Web技術の記録 | Unimate JP" />
     <meta
       property="og:description"
-      content="ブラウザゲーム制作の裏側や TypeScript・Three.js・Cloudflare Pages に関する技術記事をまとめています。"
+      content="ブラウザゲーム制作の裏側や TypeScript・Three.js・Web Audio API・Cloudflare 運用に関する技術記事をまとめています。"
     />
     <meta property="og:url" content="https://unimate-jp.com/blog/" />
     <meta property="og:image" content="https://unimate-jp.com/og-image.png" />
@@ -50,18 +50,130 @@
     <main>
       <section class="hero hero-compact">
         <div class="container">
-          <div class="hero-eyebrow">DEV BLOG &amp; NOTES</div>
+          <div class="hero-eyebrow">DEV BLOG &amp; TECHNICAL NOTES</div>
           <h1>個人開発・技術ブログ</h1>
           <p class="hero-lead">
-            ブラウザゲーム制作における設計の試行錯誤、フロントエンド技術メモ、サイト運用のノウハウを発信しています。
+            実際に制作・公開しているブラウザゲームの設計ノウハウ、モバイル操作や Web Audio 実装メモ、サイト運用の工夫を一次情報としてまとめています。
           </p>
         </div>
       </section>
 
       <section class="section">
         <div class="container">
+          <div class="filter-bar" role="group" aria-label="ブログカテゴリ絞り込み">
+            <button class="filter-btn is-active" type="button" data-filter="all">すべて (8)</button>
+            <button class="filter-btn" type="button" data-filter="gamedev">ゲーム開発 (4)</button>
+            <button class="filter-btn" type="button" data-filter="math">数学・アルゴリズム (2)</button>
+            <button class="filter-btn" type="button" data-filter="infra">インフラ・運営 (2)</button>
+          </div>
+
           <div class="grid-3">
-            <article class="card">
+            <article class="card" data-category="gamedev">
+              <div class="card-body">
+                <div class="tag-row">
+                  <span class="tag">Web Audio API</span>
+                  <span class="tag tag-neutral">ゲーム開発</span>
+                </div>
+                <div class="card-meta">公開日: 2026-11-21</div>
+                <h2 class="card-title">
+                  <a href="/blog/posts/web-audio-api-game-sfx/">
+                    外部音声ファイルゼロ！Web Audio API でブラウザゲームのチャイム・警報・爆発音を合成する実装手法
+                  </a>
+                </h2>
+                <p class="card-desc">
+                  MP3を使わずにオシレーターとノイズバーストだけで効果音をリアルタイム生成し、iOS Safari の自動再生制限も突破する方法を解説します。
+                </p>
+                <div class="card-actions">
+                  <a class="btn btn-outline btn-sm" href="/blog/posts/web-audio-api-game-sfx/">記事を読む →</a>
+                </div>
+              </div>
+            </article>
+
+            <article class="card" data-category="gamedev">
+              <div class="card-body">
+                <div class="tag-row">
+                  <span class="tag">Pointer Events</span>
+                  <span class="tag tag-neutral">モバイルUI</span>
+                </div>
+                <div class="card-meta">公開日: 2026-11-21</div>
+                <h2 class="card-title">
+                  <a href="/blog/posts/mobile-game-touch-controls/">
+                    スマホブラウザで「移動しながら攻撃」を実現する Pointer Events マルチタッチ仮想スティック実装
+                  </a>
+                </h2>
+                <p class="card-desc">
+                  pointerId ごとの指追跡、デッドゾーン＆スプリント判定、touch-action とセーフエリア対応による誤操作防止テクニックを解説。
+                </p>
+                <div class="card-actions">
+                  <a class="btn btn-outline btn-sm" href="/blog/posts/mobile-game-touch-controls/">記事を読む →</a>
+                </div>
+              </div>
+            </article>
+
+            <article class="card" data-category="gamedev">
+              <div class="card-body">
+                <div class="tag-row">
+                  <span class="tag tag-amber">ゲームバランス</span>
+                  <span class="tag tag-neutral">タワーディフェンス</span>
+                </div>
+                <div class="card-meta">公開日: 2026-11-21</div>
+                <h2 class="card-title">
+                  <a href="/blog/posts/shelter-musou-balance-design/">
+                    3D無双×タワーディフェンスのゲームバランス設計：ウェーブ曲線と強化パークの組み立て方
+                  </a>
+                </h2>
+                <p class="card-desc">
+                  「SHELTER MUSOU」における無制限ウェーブの難易度スケーリング、武器と砲塔の役割分担、Supply Drop パーク設計を紹介します。
+                </p>
+                <div class="card-actions">
+                  <a class="btn btn-outline btn-sm" href="/blog/posts/shelter-musou-balance-design/">記事を読む →</a>
+                </div>
+              </div>
+            </article>
+
+            <article class="card" data-category="math">
+              <div class="card-body">
+                <div class="tag-row">
+                  <span class="tag tag-green">パーサー設計</span>
+                  <span class="tag tag-neutral">Vitest</span>
+                </div>
+                <div class="card-meta">公開日: 2026-11-21</div>
+                <h2 class="card-title">
+                  <a href="/blog/posts/math-expression-parser-vitest/">
+                    「1/√2」と「√2/2」を同じ正解と判定する：数学ゲーム向け数式パーサー設計と Vitest 自動テスト
+                  </a>
+                </h2>
+                <p class="card-desc">
+                  全角・表記ゆれ正規化、eval不使用の再帰下降構文解析、許容誤差による同値判定と16件の自動テストを解説します。
+                </p>
+                <div class="card-actions">
+                  <a class="btn btn-outline btn-sm" href="/blog/posts/math-expression-parser-vitest/">記事を読む →</a>
+                </div>
+              </div>
+            </article>
+
+            <article class="card" data-category="infra">
+              <div class="card-body">
+                <div class="tag-row">
+                  <span class="tag tag-amber">UX設計</span>
+                  <span class="tag tag-neutral">AdSense対策</span>
+                </div>
+                <div class="card-meta">公開日: 2026-11-21</div>
+                <h2 class="card-title">
+                  <a href="/blog/posts/browser-game-adsense-ux-design/">
+                    ブラウザゲームの広告配置と誤クリック防止設計：600ms遅延・ボタン間150px・CLSゼロの実装
+                  </a>
+                </h2>
+                <p class="card-desc">
+                  プレイ中広告ゼロ、リザルト上部固定320×100、600ms遅延、1滞在1回ロードを実装した共通コンポーネントの設計理由を紹介します。
+                </p>
+                <div class="card-actions">
+                  <a class="btn btn-outline btn-sm" href="/blog/posts/browser-game-adsense-ux-design/">記事を読む →</a>
+                </div>
+              </div>
+            </article>
+
+            <article class="card" data-category="gamedev">
               <div class="card-body">
                 <div class="tag-row">
                   <span class="tag">Three.js</span>
@@ -74,7 +186,7 @@
                   </a>
                 </h2>
                 <p class="card-desc">
-                  「授業中妄想クライシス」や「SHELTER MUSOU」の制作を通して得た、軽量ローポリ描画、仮想ジョイスティック実装、爽快な手触り演出のポイントを解説します。
+                  「授業中妄想クライシス」や「SHELTER MUSOU」の制作を通して得た、軽量ローポリ描画、ヒットストップ演出、ロジック分離のポイントを解説します。
                 </p>
                 <div class="card-actions">
                   <a class="btn btn-outline btn-sm" href="/blog/posts/threejs-mobile-3d-musou/">記事を読む →</a>
@@ -82,7 +194,7 @@
               </div>
             </article>
 
-            <article class="card">
+            <article class="card" data-category="math">
               <div class="card-body">
                 <div class="tag-row">
                   <span class="tag tag-green">数学×ゲーム</span>
@@ -95,7 +207,7 @@
                   </a>
                 </h2>
                 <p class="card-desc">
-                  等比級数から部分分数・対数・発散まで対応する数式パーサーの設計と、スマホ片手でストレスなく数式解答できる専用キーパッドUIの裏側を紹介します。
+                  加速演出で無限を体感させる仕組み、SVG収束可視化チャート、スマホ片手でストレスなく数式解答できる専用キーパッドUIの裏側を紹介します。
                 </p>
                 <div class="card-actions">
                   <a class="btn btn-outline btn-sm" href="/blog/posts/infinite-flash-anzan-math/">記事を読む →</a>
@@ -103,20 +215,20 @@
               </div>
             </article>
 
-            <article class="card">
+            <article class="card" data-category="infra">
               <div class="card-body">
                 <div class="tag-row">
-                  <span class="tag tag-amber">Cloudflare Pages</span>
+                  <span class="tag tag-amber">Cloudflare</span>
                   <span class="tag tag-neutral">モノレポ</span>
                 </div>
                 <div class="card-meta">公開日: 2026-11-21</div>
                 <h2 class="card-title">
                   <a href="/blog/posts/cloudflare-pages-monorepo/">
-                    独自ドメイン＋Cloudflare Pages モノレポで複数ブラウザゲームを統合運用する構成
+                    独自ドメイン＋Cloudflare モノレポで複数ブラウザゲームを統合運用する構成
                   </a>
                 </h2>
                 <p class="card-desc">
-                  GitHub Pages でバラバラに公開していた複数ゲームを、独自ドメイン配下の `/games/xxx/` に統合した理由と、npm workspaces による自動ビルド構成をまとめました。
+                  バラバラだった複数ゲームを独自ドメイン配下の `/games/xxx/` に統合した理由と、npm workspaces による自動ビルド・配信構成をまとめました。
                 </p>
                 <div class="card-actions">
                   <a class="btn btn-outline btn-sm" href="/blog/posts/cloudflare-pages-monorepo/">記事を読む →</a>
@@ -163,7 +275,7 @@
         </div>
         <div class="footer-bottom">
           <span>© 2026 Unimate JP (unimate-jp.com). All rights reserved.</span>
-          <span>Powered by Cloudflare Pages</span>
+          <span>Powered by Cloudflare</span>
         </div>
       </div>
     </footer>

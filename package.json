@@ -16,6 +16,7 @@
     "dev:zonbi": "npm run dev --workspace=games/zonbi",
     "dev:flashanzan": "npm run dev --workspace=games/flashanzan",
     "test": "npm run test --workspaces --if-present",
+    "verify": "node scripts/verify-dist.mjs",
     "preview": "node scripts/preview-dist.mjs"
   }
 }

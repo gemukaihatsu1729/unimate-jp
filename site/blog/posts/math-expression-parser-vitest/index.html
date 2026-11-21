@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>「1/√2」と「√2/2」を同じ正解と判定する：数学ゲーム向け数式パーサー設計と Vitest 自動テスト | Unimate JP</title>
+    <meta
+      name="description"
+      content="「無限フラッシュ暗算」で分数・小数・平方根・π・e・ln2・発散(∞)といった多様な数式入力を安全かつ正確に評価するための独自パーサー設計と Vitest テスト手法を解説します。"
+    />
+    <link rel="canonical" href="https://unimate-jp.com/blog/posts/math-expression-parser-vitest/" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="Unimate JP" />
+    <meta property="og:title" content="「1/√2」と「√2/2」を同じ正解と判定する：数学ゲーム向け数式パーサー設計と Vitest 自動テスト" />
+    <meta
+      property="og:description"
+      content="evalを使わない安全な再帰下降パーサー、全角・表記ゆれの正規化、浮動小数点許容誤差判定、Vitestによる全問自動検証を紹介します。"
+    />
+    <meta property="og:url" content="https://unimate-jp.com/blog/posts/math-expression-parser-vitest/" />
+    <meta property="og:image" content="https://unimate-jp.com/games/flashanzan/og-image.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="/">
+          <img class="brand-mark" src="/favicon.svg" alt="" width="34" height="34" />
+          <span>Unimate JP</span>
+        </a>
+        <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-label="メニューを開く">☰</button>
+        <nav class="nav-links" data-nav-menu aria-label="メインナビゲーション">
+          <a href="/">ホーム</a>
+          <a href="/games/">ゲーム</a>
+          <a href="/portfolio/">ポートフォリオ</a>
+          <a href="/blog/" aria-current="page">ブログ</a>
+          <a href="/about/">運営情報</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="section">
+      <div class="prose-container">
+        <nav class="breadcrumb" aria-label="パンくずリスト">
+          <a href="/">ホーム</a>
+          <span>/</span>
+          <a href="/blog/">ブログ</a>
+          <span>/</span>
+          <span>数学ゲーム向け数式パーサー＆テスト</span>
+        </nav>
+
+        <article class="article-shell">
+          <div class="tag-row">
+            <span class="tag tag-green">パーサー設計</span>
+            <span class="tag tag-neutral">Vitest</span>
+            <span class="tag tag-neutral">TypeScript</span>
+          </div>
+          <h1>「1/√2」と「√2/2」を同じ正解と判定する：数学ゲーム向け数式パーサー設計と Vitest 自動テスト</h1>
+          <div class="article-meta">
+            <span>公開日: 2026-11-21</span>
+            <span>カテゴリ: アルゴリズム・テスト</span>
+          </div>
+
+          <p>
+            <a href="/games/flashanzan/">無限フラッシュ暗算</a> を開発するうえで最もこだわったのが「解答の正誤判定の納得感」です。
+            たとえば答えが <code>1/2</code> のとき、<code>0.5</code> と書いても数学的には正解ですし、有理化前の <code>1/√2</code> と有理化後の <code>√2/2</code> も同じ値です。
+            もし文字列の一致だけで不正解にされたら、プレイヤーにとって理不尽なゲームになってしまいます。
+          </p>
+          <p>
+            そこで外部の数式ライブラリや危険な <code>eval()</code> を使わずに、軽量で安全かつ直感的な独自数式パーサー（<code>src/game/answerParser.ts</code>）を実装しました。
+          </p>
+
+          <h2>1. ステップ1：全角記号・日本語キーワードの正規化</h2>
+          <p>
+            スマホテンキーからの入力だけでなく、PCキーボードから直接入力するプレイヤーも想定し、まず <code>normalizeAnswerInput()</code> で表記ゆれを吸収します。
+          </p>
+          <ul>
+            <li>全角数字や全角演算子（<code>＋</code> <code>−</code> <code>÷</code> <code>×</code> <code>／</code>）を半角に統一</li>
+            <li><code>発散</code>・<code>inf</code>・<code>infinity</code> をすべて <code>∞</code> に変換</li>
+            <li><code>sqrt</code> → <code>√</code>、<code>pi</code> → <code>π</code>、<code>log(2)</code>・<code>ln(2)</code> → <code>ln2</code> に正規化</li>
+          </ul>
+
+          <h2>2. ステップ2：トークナイズと再帰下降構文解析（Recursive Descent）</h2>
+          <p>
+            正規化した文字列を <code>NUMBER</code>・<code>CONST</code>（<code>π</code>, <code>e</code>, <code>ln2</code>）・<code>OP</code>・<code>SQRT</code>・<code>SQ</code>（2乗）・カッコのトークン列へ分解します。
+            また、数式では「<code>2π</code>」「<code>3√2</code>」「<code>2(1+3)</code>」のように乗算記号 <code>*</code> を省略する書き方が自然なため、暗黙の乗算も処理できるようにしました。
+          </p>
+          <p>
+            構文解析は演算子の優先順位に沿って <code>parseExpr (+,-)</code> → <code>parseTerm (*,/)</code> → <code>parseUnary (+,-)</code> → <code>parsePower (^, ²)</code> → <code>parsePrimary (数値, 定数, √, カッコ)</code> の順に再帰で評価します。
+            負の数の平方根やカッコ閉じ忘れが入力されたときは、単なる「不正解」ではなく具体的なエラーメッセージ（「カッコが閉じられていません」など）を返し、リトライしやすくしています。
+          </p>
+
+          <h2>3. ステップ3：有限値・発散（∞）の判定と許容誤差</h2>
+          <pre><code>if (expected.kind === 'infinity') {
+  return { valid: true, correct: parsed.kind === 'infinity', ... };
+}
+// 有限値の場合は浮動小数点誤差を吸収するため 1e-9 以内で一致判定
+const correct = Math.abs(parsed.value - expected.value) &lt;= 1e-9;</code></pre>
+          <p>
+            <code>1/√2</code> を評価した値と <code>√2/2</code> を評価した値の差は IEEE 754 倍精度浮動小数点でも <code>1e-16</code> 程度に収まるため、許容誤差 <code>1e-9</code> によって確実に同じ正解として判定されます。一方で <code>0.707</code> のような粗い近似入力はきちんと弾けるちょうどよい閾値です。
+          </p>
+
+          <h2>4. Vitest による 16 件の自動テストで数学的破綻を防ぐ</h2>
+          <p>
+            数式パーサー・スコア計算・35種類の問題バンク（<code>seriesBank.ts</code>）には Vitest のテストスイートを用意し、モノレポの <code>npm test</code> で毎回検証しています。
+          </p>
+          <ul>
+            <li><code>answerParser.test.ts</code>：分数・小数・有理化前後・定数乗算・発散・不正構文エラーの検証</li>
+            <li><code>seriesBank.test.ts</code>：全問題が収束値・発散仕様と一致しているか、部分和の数値シミュレーションを自動確認</li>
+            <li><code>scoreManager.test.ts</code>：早期解答ボーナス、リプレイ時ペナルティ、コンボ倍率上限（2.5倍）と段位判定の境界チェック</li>
+          </ul>
+
+          <div class="callout">
+            今回解説したパーサーが実際に動く様子は、<a href="/games/flashanzan/">無限フラッシュ暗算</a> で
+            <code>1/√2</code> や <code>0.5</code> などを入力して体験できます。
+          </div>
+
+          <div class="related-posts">
+            <h3>あわせて読みたい関連記事</h3>
+            <ul>
+              <li><a href="/blog/posts/infinite-flash-anzan-math/">「無限フラッシュ暗算」— 高校数学の極限をリアルタイム暗算ゲームにした仕組み</a></li>
+              <li><a href="/blog/posts/cloudflare-pages-monorepo/">独自ドメイン＋Cloudflare モノレポで複数ブラウザゲームを統合運用する構成</a></li>
+            </ul>
+          </div>
+
+          <p><a class="btn btn-outline btn-sm" href="/blog/">← ブログ記事一覧へ戻る</a></p>
+        </article>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer-grid">
+          <div>
+            <a class="footer-brand" href="/">
+              <img class="brand-mark" src="/favicon.svg" alt="" width="30" height="30" />
+              <span>Unimate JP</span>
+            </a>
+            <p class="footer-desc">オリジナル無料ブラウザゲーム、個人制作ポートフォリオ、Web技術・開発ブログを発信するサイトです。</p>
+          </div>
+          <div class="footer-col">
+            <h4>コンテンツ</h4>
+            <ul>
+              <li><a href="/games/">ゲームポータル</a></li>
+              <li><a href="/portfolio/">ポートフォリオ</a></li>
+              <li><a href="/blog/">開発ブログ</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>サイト情報</h4>
+            <ul>
+              <li><a href="/about/">運営者情報</a></li>
+              <li><a href="/privacy/">プライバシーポリシー</a></li>
+              <li><a href="/contact/">お問い合わせ</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <span>© 2026 Unimate JP (unimate-jp.com). All rights reserved.</span>
+          <span>Powered by Cloudflare</span>
+        </div>
+      </div>
+    </footer>
+
+    <script type="module" src="/src/scripts/main.ts"></script>
+  </body>
+</html>

@@ -3,19 +3,19 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ポートフォリオ — 制作実績・技術スタック | Unimate JP</title>
+    <title>ポートフォリオ — 制作実績・技術アーキテクチャ | Unimate JP</title>
     <meta
       name="description"
-      content="Unimate JP の制作ポートフォリオ。TypeScript・Three.js・Vite を用いたオリジナルブラウザゲームやWebアプリの制作実績、アーキテクチャ、技術スタックを紹介しています。"
+      content="Unimate JP の制作ポートフォリオ。TypeScript・Three.js・Web Audio API・Vite を用いたオリジナルブラウザゲーム3作品のケーススタディ、設計・運用アーキテクチャ、技術スタックを紹介しています。"
     />
     <link rel="canonical" href="https://unimate-jp.com/portfolio/" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Unimate JP" />
-    <meta property="og:title" content="ポートフォリオ — 制作実績・技術スタック | Unimate JP" />
+    <meta property="og:title" content="ポートフォリオ — 制作実績・技術アーキテクチャ | Unimate JP" />
     <meta
       property="og:description"
-      content="TypeScript・Three.js・Vite を用いたブラウザゲームやWeb制作の実績をまとめています。"
+      content="TypeScript・Three.js・Vite を用いたブラウザゲームやWeb制作の設計ケーススタディをまとめています。"
     />
     <meta property="og:url" content="https://unimate-jp.com/portfolio/" />
     <meta property="og:image" content="https://unimate-jp.com/og-image.png" />
@@ -50,11 +50,11 @@
     <main>
       <section class="hero hero-compact">
         <div class="container">
-          <div class="hero-eyebrow">PORTFOLIO &amp; WORKS</div>
+          <div class="hero-eyebrow">PORTFOLIO &amp; CASE STUDIES</div>
           <h1>制作ポートフォリオ</h1>
           <p class="hero-lead">
             「URLを開くだけで誰でもすぐ体験できる」をコンセプトに制作している Web ゲーム・インタラクティブ作品の一覧です。
-            新しいプロジェクトやWebツールが完成次第、随時こちらに追加していきます。
+            制作背景、解決した技術課題、テスト・配信基盤の設計まで公開しています。
           </p>
         </div>
       </section>
@@ -63,9 +63,9 @@
         <div class="container">
           <div class="section-head">
             <div>
-              <span class="section-kicker">Works</span>
-              <h2>制作プロダクト</h2>
-              <p>すべてゼロから TypeScript + Vite で構築し、ブラウザ単体で軽快に動作するよう設計しています。</p>
+              <span class="section-kicker">Works &amp; Case Studies</span>
+              <h2>制作プロダクト詳細</h2>
+              <p>すべてゼロから TypeScript + Vite で構築し、外部モデルやサーバーDBに頼らずブラウザ単体で軽快に動作するよう設計しています。</p>
             </div>
           </div>
 
@@ -75,16 +75,36 @@
                 <span class="tag">TypeScript</span>
                 <span class="tag">Three.js (WebGL)</span>
                 <span class="tag">Web Audio API</span>
-                <span class="tag tag-neutral">Vitest</span>
+                <span class="tag tag-neutral">Vitest 12テスト</span>
               </div>
-              <h3>授業中妄想クライシス 〜黒板の前で俺だけが覚醒した件〜</h3>
+              <h3>1. 授業中妄想クライシス 〜黒板の前で俺だけが覚醒した件〜</h3>
               <p>
-                教室の机・黒板・キャラクターをすべてコードベースのプロシージャル・ローポリモデルで構築したスマホ向け3Dアクションゲーム。
-                外部アセットに頼らず軽量に起動でき、ヒットストップ、スローモーション演出、学習机の物理的な蹴り飛ばし、100位までのローカルランキングとSNSシェア機能を備えています。
+                教室の机・黒板・キャラクターをすべてコードベースのプロシージャル・ローポリモデル（<code>SchoolBuilder</code> / <code>CharacterMesh</code>）で構築したスマホ向け3Dアクションゲーム。
+                初回ロードを高速化しつつ、ヒットストップ、スローモーション、学習机の物理的な蹴り飛ばし、100位までのローカルランキングとSNSシェア機能を搭載しています。
               </p>
+              <div class="guide-cols">
+                <div class="guide-box">
+                  <h4>制作背景と解決した課題</h4>
+                  <ul>
+                    <li><strong>課題1（スマホ3Dの重さ）：</strong>外部GLTF読み込みを排し、Box/Cylinder 等のジオメトリ結合と軽量シェーディングで即起動を実現。</li>
+                    <li><strong>課題2（マルチタッチ干渉）：</strong>左仮想スティック・右4ボタン・背景カメラスワイプを <code>pointerId</code> ごとに完全分離。</li>
+                    <li><strong>課題3（効果音ロード遅延）：</strong>Web Audio API によるゼロ依存シンセで校内チャイムや警報・爆発音を生成。</li>
+                  </ul>
+                </div>
+                <div class="guide-box">
+                  <h4>実装ハイライト・品質管理</h4>
+                  <ul>
+                    <li><strong>当たり判定と遮蔽物：</strong><code>CollisionSystem</code> で移動衝突と銃弾遮蔽（机カバー）をAABBで分離管理。</li>
+                    <li><strong>テスト整備：</strong><code>CollisionSystem</code> / <code>RankingManager</code> / <code>ResultShare</code> に対し Vitest で12件のユニットテストを実装。</li>
+                    <li><strong>結果演出：</strong>生存人数別のツッコミ台詞分岐と X / LINE / Web Share API 対応シェア文生成を実装。</li>
+                  </ul>
+                </div>
+              </div>
               <div class="card-actions">
                 <a class="btn btn-primary btn-sm" href="/games/mousoutero/">デモをプレイ →</a>
-                <a class="btn btn-outline btn-sm" href="/blog/posts/threejs-mobile-3d-musou/">技術解説を読む</a>
+                <a class="btn btn-outline btn-sm" href="/blog/posts/threejs-mobile-3d-musou/">3D設計記事</a>
+                <a class="btn btn-outline btn-sm" href="/blog/posts/web-audio-api-game-sfx/">Web Audio記事</a>
+                <a class="btn btn-outline btn-sm" href="/blog/posts/mobile-game-touch-controls/">タッチ操作記事</a>
               </div>
             </article>
 
@@ -95,32 +115,65 @@
                 <span class="tag">3D UIプレビュー</span>
                 <span class="tag tag-amber">無双 × タワーディフェンス</span>
               </div>
-              <h3>SHELTER MUSOU — 3Dゾンビ無双防衛</h3>
+              <h3>2. SHELTER MUSOU — 3Dゾンビ無双防衛</h3>
               <p>
-                タイトル画面で装備を切り替えるとリアルタイムで3Dキャラクターの武器が変化するライブプレビューと、
-                無制限ウェーブ制の防衛バトルを組み合わせたアクションゲーム。カメラ制御、3D空間上のタレット配置パッド、強化パーク選択など複雑なゲームループをシングルページで完結させています。
+                タイトル画面で装備を切り替えるとリアルタイムで3Dヒーローの武器が持ち替わり試し斬りできるライブプレビューと、
+                無制限ウェーブ制の防衛バトルを組み合わせたアクション×戦略ゲーム。1つの WebGL Canvas 上でシームレスにタイトルから戦場へ移行します。
               </p>
+              <div class="guide-cols">
+                <div class="guide-box">
+                  <h4>制作背景と解決した課題</h4>
+                  <ul>
+                    <li><strong>課題1（3D空間上のタレット操作）：</strong>3D戦場の防衛パッドを Raycaster で直接タップ選択し、モバイルで迷わず建設・Lv3強化できるボトムシートを実装。</li>
+                    <li><strong>課題2（群衆の押し合い処理）：</strong>多数ゾンビの重なりを防ぐ軽量なペアワイズ押し出し計算と 240 個上限のパーティクルプールで負荷を一定化。</li>
+                  </ul>
+                </div>
+                <div class="guide-box">
+                  <h4>実装ハイライト</h4>
+                  <ul>
+                    <li><strong>装備カスタマイズ：</strong>メイン武器3種・特殊タレット3種（＋共通オート機銃）・無双奥義3種をデータ駆動（<code>data.ts</code>）で定義。</li>
+                    <li><strong>無限ウェーブ設計：</strong>Wave ごとに総数・HP・速度・出現間隔を算出する <code>generateWave()</code> と、3波ごとの Supply Drop パーク選択（6種）で長期的な戦略性を構築。</li>
+                  </ul>
+                </div>
+              </div>
               <div class="card-actions">
                 <a class="btn btn-primary btn-sm" href="/games/zonbi/">デモをプレイ →</a>
+                <a class="btn btn-outline btn-sm" href="/blog/posts/shelter-musou-balance-design/">バランス設計記事</a>
               </div>
             </article>
 
             <article class="guide-card">
               <div class="tag-row">
                 <span class="tag tag-green">TypeScript</span>
-                <span class="tag tag-green">数式パーサー</span>
+                <span class="tag tag-green">独自数式パーサー</span>
                 <span class="tag tag-green">SVG収束グラフ</span>
-                <span class="tag tag-neutral">Vitest</span>
+                <span class="tag tag-neutral">Vitest 16テスト</span>
               </div>
-              <h3>無限フラッシュ暗算 — 加速する足し算の極限を見抜け</h3>
+              <h3>3. 無限フラッシュ暗算 — 加速する足し算の極限を見抜け</h3>
               <p>
-                高校数学の無限級数をフラッシュ暗算形式にした教育×ゲーム作品。
-                分数・ルート・三角比・π・e・自然対数・発散などを柔軟に評価する独自数式パーサーと、
-                35種類の極限図鑑コレクション、自動生成によるエンドレス問題バンクを実装しています。
+                高校数学の無限級数をフラッシュ暗算形式にした教育×エンタメ作品。外部ライブラリゼロ（ランタイム依存なし）で、
+                高速フラッシュ表示、分数・平方根・対数対応の数式パーサー、SVG 収束可視化チャート、35種類の極限図鑑コレクションをすべて自前実装しています。
               </p>
+              <div class="guide-cols">
+                <div class="guide-box">
+                  <h4>制作背景と解決した課題</h4>
+                  <ul>
+                    <li><strong>課題1（スマホのキーボード問題）：</strong>OSキーボードが画面を覆うのを防ぐため、4×4親指テンキーと問題に応じた5種数学記号ストリップを独自実装。</li>
+                    <li><strong>課題2（等価表現の正誤判定）：</strong><code>0.5</code> と <code>1/2</code>、<code>1/√2</code> と <code>√2/2</code>、<code>発散</code> と <code>∞</code> をすべて正解扱いできるよう独自トークナイザ＆再帰下降評価器を構築。</li>
+                  </ul>
+                </div>
+                <div class="guide-box">
+                  <h4>実装ハイライト・品質管理</h4>
+                  <ul>
+                    <li><strong>11カテゴリの問題生成：</strong>等比級数・部分分数・三角関数・フィボナッチ・階乗・発散トラップなどエンドレス自動生成にも対応。</li>
+                    <li><strong>テスト整備：</strong><code>answerParser</code> / <code>scoreManager</code> / <code>seriesBank</code> に対し Vitest で16件の自動テストを実装。</li>
+                  </ul>
+                </div>
+              </div>
               <div class="card-actions">
                 <a class="btn btn-primary btn-sm" href="/games/flashanzan/">デモをプレイ →</a>
-                <a class="btn btn-outline btn-sm" href="/blog/posts/infinite-flash-anzan-math/">技術解説を読む</a>
+                <a class="btn btn-outline btn-sm" href="/blog/posts/infinite-flash-anzan-math/">設計概要記事</a>
+                <a class="btn btn-outline btn-sm" href="/blog/posts/math-expression-parser-vitest/">パーサー＆テスト記事</a>
               </div>
             </article>
           </div>
@@ -131,23 +184,66 @@
         <div class="container">
           <div class="section-head">
             <div>
-              <span class="section-kicker">Tech Stack</span>
-              <h2>主な使用技術</h2>
+              <span class="section-kicker">Architecture &amp; Stack</span>
+              <h2>設計・運用アーキテクチャ一覧</h2>
+              <p>サイト本体と全ゲームを 1 つのモノレポにまとめ、開発効率・配信速度・UX安全性を一貫して管理しています。</p>
             </div>
+          </div>
+
+          <div class="data-table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>レイヤー</th>
+                  <th>採用技術・構成</th>
+                  <th>選定理由・工夫している点</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>言語・ビルド基盤</strong></td>
+                  <td>TypeScript 5.7 / Vite 6 / npm Workspaces</td>
+                  <td><code>site</code> と <code>games/*</code> を独立したワークスペースとして管理し、<code>scripts/build-all.mjs</code> で単一 <code>dist/</code> へ統合出力。</td>
+                </tr>
+                <tr>
+                  <td><strong>3D・UI・サウンド</strong></td>
+                  <td>Three.js 0.172 / Web Audio API / SVG</td>
+                  <td>外部アセットに依存しないプロシージャル設計により、初回バンドルサイズを抑えつつ滑らかな描画と効果音再生を実現。</td>
+                </tr>
+                <tr>
+                  <td><strong>品質管理・自動検証</strong></td>
+                  <td>Vitest / 独自 <code>verify-dist.mjs</code></td>
+                  <td>合計28件のゲームロジックテストに加え、ビルド成果物の全リンク切れ・サイトマップ整合・広告配置順序を自動検証。</td>
+                </tr>
+                <tr>
+                  <td><strong>ホスティング・CDN</strong></td>
+                  <td>Cloudflare Workers Static Assets / 独自DNS</td>
+                  <td>GitHub <code>main</code> へのプッシュで自動ビルド＆エッジ配信。<code>_headers</code> でキャッシュ最適化とセキュリティヘッダーを付与。</td>
+                </tr>
+                <tr>
+                  <td><strong>UX・誤タップ防止設計</strong></td>
+                  <td>共通スクリプト <code>result-ad.js</code></td>
+                  <td>プレイ画面には広告を置かず、リザルト画面のみに 600ms 遅延・ボタン間150px以上の安全設計を適用（詳細：<a href="/blog/posts/browser-game-adsense-ux-design/">設計記事</a>）。</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
 
           <div class="grid-3">
             <div class="pillar-card">
-              <h3>フロントエンド・言語</h3>
-              <p>TypeScript / HTML5 / CSS3 / Vite / Vitest による型安全で軽量なビルド構成を採用しています。</p>
+              <div class="pillar-icon" aria-hidden="true">🎮</div>
+              <h3>今後の開発予定：新作タイトル</h3>
+              <p>パズル・物理演算・協力系など、1〜3分で遊べる新しいスマホ向けブラウザゲームを <code>/games/</code> に順次追加予定です。</p>
             </div>
             <div class="pillar-card">
-              <h3>グラフィックス・サウンド</h3>
-              <p>Three.js（WebGL）でのローポリ3D描画、SVGによる動的グラフ生成、Web Audio API によるゼロ依存シンセ効果音。</p>
+              <div class="pillar-icon" aria-hidden="true">✍️</div>
+              <h3>技術ブログの継続発信</h3>
+              <p>WebGL パフォーマンスチューニング、モバイルブラウザ特有の落とし穴、ゲームAI設計など実装に基づく記事を拡充していきます。</p>
             </div>
             <div class="pillar-card">
-              <h3>インフラ・配信基盤</h3>
-              <p>GitHub + npm Workspaces モノレポ構成と Cloudflare Pages を組み合わせ、高速なグローバルCDN配信を実現しています。</p>
+              <div class="pillar-icon" aria-hidden="true">🧰</div>
+              <h3>Webユーティリティ公開</h3>
+              <p>ゲーム開発の過程で生まれた計算ツールやフロントエンド小道具も、同じポートフォリオ配下で公開していく予定です。</p>
             </div>
           </div>
         </div>
@@ -189,7 +285,7 @@
         </div>
         <div class="footer-bottom">
           <span>© 2026 Unimate JP (unimate-jp.com). All rights reserved.</span>
-          <span>Powered by Cloudflare Pages</span>
+          <span>Powered by Cloudflare</span>
         </div>
       </div>
     </footer>

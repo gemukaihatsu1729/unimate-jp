@@ -1,21 +1,22 @@
 # Unimate JP (`unimate-jp.com`)
 
-オリジナル無料ブラウザゲーム・ポートフォリオ・開発ブログを 1 つのリポジトリで統合管理し、Cloudflare Pages へ自動デプロイするモノレポです。
+オリジナル無料ブラウザゲーム・ポートフォリオ・開発ブログを 1 つのリポジトリで統合管理し、Cloudflare Workers Static Assets へ自動デプロイするモノレポです。
 
 ## 公開URL構造
 
 ```text
 https://unimate-jp.com/
-├── /                         総合トップページ
-├── /games/                   ゲームポータル（一覧・遊び方・攻略ガイド）
+├── /                         総合トップページ（ゲーム・目的別ガイド・ブログ・FAQ・更新履歴）
+├── /games/                   ゲームポータル（一覧・詳細データ表・攻略ガイド）
 │   ├── mousoutero/           授業中妄想クライシス
 │   ├── zonbi/                SHELTER MUSOU — 3Dゾンビ無双防衛
 │   └── flashanzan/           無限フラッシュ暗算
-├── /portfolio/               制作ポートフォリオ
-├── /blog/                    個人開発・技術ブログ
+├── /portfolio/               制作ポートフォリオ（ケーススタディ・技術構成）
+├── /blog/                    個人開発・技術ブログ（全8記事＋カテゴリ絞り込み）
 ├── /about/                   運営者情報
 ├── /privacy/                 プライバシーポリシー（AdSense・Cookie・localStorage対応）
 ├── /contact/                 お問い合わせ
+├── /common/js/result-ad.js   全ゲーム共通のリザルト画面専用・安全広告スクリプト
 ├── /robots.txt
 ├── /sitemap.xml
 └── /ads.txt                  （ADSENSE_CLIENT_ID 設定時に自動生成）
@@ -41,72 +42,46 @@ npm test
 # 本番用の一括ビルド（dist/ にサイト本体 + games/* を統合出力）
 npm run build
 
+# ビルド成果物の自動検証（リンク整合・サイトマップ・広告配置・プレースホルダー検証）
+npm run verify
+
 # ビルド済み dist/ を本番と同じURL構造でローカル確認
+# ※ localhost では各ゲームのリザルト画面に 320×100 の点線広告プレビューが表示されます
 npm run preview
 ```
 
 ---
 
-## デプロイ＆独自ドメイン公開手順（Xserver × Cloudflare Pages）
+## デプロイ構成（Xserver ドメイン × Cloudflare Workers Static Assets）
 
-### 1. GitHub にリポジトリを作成してプッシュ
-
-1. GitHub で新しいリポジトリを作成します（例：`unimate-jp`、Public / Private どちらでも可）。
-2. このディレクトリ（`unimate-jp/`）で以下を実行します：
-
-```bash
-git remote add origin https://github.com/<あなたのユーザー名>/unimate-jp.git
-git branch -M main
-git push -u origin main
-```
-
-### 2. Cloudflare Pages と GitHub リポジトリを接続
-
-1. [Cloudflare ダッシュボード](https://dash.cloudflare.com/) にログイン（未作成なら無料アカウントを作成）。
-2. 左メニュー **Workers & Pages** → **作成（Create）** → **Pages** → **Git に接続** を選択。
-3. 作成した `unimate-jp` リポジトリを選択し、ビルド設定を以下にします：
-   - **フレームワーク プリセット**: `なし (None)`
-   - **ビルド コマンド**: `npm run build`
-   - **ビルド出力ディレクトリ**: `dist`
-   - （Node バージョンは `.node-version` により自動で `22` が使われます）
-4. **保存してデプロイ** をクリックすると、`https://<project>.pages.dev/` で公開されます。
-
-### 3. Xserver ドメイン（`unimate-jp.com`）を Cloudflare に接続
-
-Cloudflare Pages で `www` なしのルートドメイン（`unimate-jp.com`）を使うには、**Xserver 側のネームサーバーを Cloudflare に向ける方法**が最も簡単・確実です。
-
-1. Cloudflare ダッシュボードのホームで **ドメインを追加** をクリックし、`unimate-jp.com` を入力 → **Free プラン** を選択。
-2. Cloudflare が指定する **2つのネームサーバー**（例：`xxxx.ns.cloudflare.com` / `yyyy.ns.cloudflare.com`）を控えます。
-   - ※もし Xserver 側で `@unimate-jp.com` のメール機能を利用している場合は、Cloudflare 側の DNS 画面に既存の `MX` / `TXT (SPF等)` レコードが引き継がれていることを確認してください。
-3. **XServer アカウント管理画面** → **ドメイン管理** → `unimate-jp.com` の **ネームサーバー設定** を開きます。
-4. 「**その他のネームサーバーを使う**」を選択し、手順2で控えた Cloudflare のネームサーバー2つを入力して保存します。
-5. 反映を待ちます（通常数分〜数時間、最大24時間）。Cloudflare 側でステータスが「アクティブ」になれば完了です。
-
-### 4. Cloudflare Pages にカスタムドメインを設定
-
-1. Cloudflare ダッシュボード → **Workers & Pages** → `unimate-jp` プロジェクト → **カスタムドメイン** タブを開く。
-2. **カスタムドメインを設定** をクリックし、`unimate-jp.com` を入力 → **ドメインをアクティブ化**（DNSレコードとSSL証明書が自動設定されます）。
-3. `www.unimate-jp.com` でもアクセスさせたい場合は、同様に `www.unimate-jp.com` も追加するか、Cloudflare の **ルール → リダイレクトルール** で `www.unimate-jp.com/*` → `https://unimate-jp.com/${1}`（301）へ転送設定するとURLが統一されて SEO 的にも最適です。
+- `wrangler.jsonc` により `./dist` を Workers Static Assets として配信し、`custom_domain: true` で `unimate-jp.com` を割り当てています。
+- GitHub の `main` ブランチへプッシュすると、Cloudflare Workers Builds が以下を自動実行して本番反映します：
+  1. ビルドコマンド: `npm run build`
+  2. デプロイコマンド: `npx wrangler deploy`
+- `www.unimate-jp.com` へのアクセスは Cloudflare のリダイレクトルールで `https://unimate-jp.com/`（301）へ転送設定済みです。
 
 ---
 
-## 将来の Google AdSense 導入手順
+## Google AdSense の導入・安全設計
 
-### 審査前に確認すること
-- `site/contact/index.html` のメールアドレス（現在 `contact@unimate-jp.com`）を、実際に受信できるメールアドレスまたは Google フォーム URL へ更新する。
-- `site/about/index.html` の運営者表記を必要に応じて更新する。
-- Google Search Console に `https://unimate-jp.com/` を登録し、サイトマップ `https://unimate-jp.com/sitemap.xml` を送信する。
+### 既存3ゲームのリザルト画面広告（`/common/js/result-ad.js`）
+プレイヤーの誤タップとポリシー違反を防ぐため、全ゲームに共通スクリプトで以下の安全仕様を組み込んでいます：
 
-### AdSense 審査タグ＆`ads.txt` の一括有効化
-このリポジトリの `scripts/build-all.mjs` は、環境変数 `ADSENSE_CLIENT_ID` を読み取って自動で全HTMLへタグ挿入＆`ads.txt` 生成を行います。
+- **プレイ中の広告ゼロ**: 仮想スティックやテンキーが出るプレイ画面には一切配置せず、リザルト／ゲームオーバー画面の最上部のみに配置。
+- **ボタンから150px以上離隔**: 広告枠の直下にランク・スコア・戦績サマリーを挟み、シェア／リトライボタンまで 250px〜350px 以上の間隔を確保。
+- **600ms 表示遅延＋CLSゼロ**: 最初から `320×100`（＋ラベル 16px）の領域を確保してレイアウトズレを防ぎつつ、リザルト表示から 600ms 間は非表示・クリック不可（`visibility: hidden; pointer-events: none`）。
+- **1ページ滞在1回のみロード**: リトライして再度リザルトを開いても `adsbygoogle.push({})` を再実行しません。
+- **審査前は完全非表示**: 環境変数 `ADSENSE_RESULT_SLOT_ID` が未設定のあいだは `hidden` 属性が維持され、本番ページに空枠は一切表示されません（ローカル `localhost` または `?adpreview=1` 時のみ点線プレビュー表示）。
 
-1. Cloudflare Pages の対象プロジェクト → **設定 → 環境変数** に以下を追加（Production）：
-   - 変数名: `ADSENSE_CLIENT_ID`
-   - 値: `ca-pub-xxxxxxxxxxxxxxxx`（Google AdSense 管理画面で発行されたパブリッシャーID）
-   - （Google Analytics 4 を使う場合は `GA_MEASUREMENT_ID=G-XXXXXXXXXX` も同様に指定可能）
-2. Cloudflare Pages で再デプロイすると、以下が自動反映されます：
-   - サイト内および全ゲームのHTML `<head>` に AdSense スクリプトを自動挿入
-   - `https://unimate-jp.com/ads.txt` を自動生成
+### 審査申請前〜合格後の手順
+1. **審査前の確認**:
+   - `site/contact/index.html` のメールアドレス（現在 `contact@unimate-jp.com`）を、実際に受信できるメールアドレスまたは Google フォーム URL へ差し替える。
+   - Google Search Console に `https://unimate-jp.com/` を登録し、サイトマップ `https://unimate-jp.com/sitemap.xml` を送信する。
+2. **AdSense 審査コードの有効化（審査申請時）**:
+   - Cloudflare ダッシュボード → **Workers & Pages** → `unimate-jp` → **設定 → ビルド → ビルド変数とシークレット** に `ADSENSE_CLIENT_ID=ca-pub-xxxxxxxxxxxxxxxx` を追加して再デプロイすると、全HTMLの `<head>` へ AdSense タグが挿入され、`https://unimate-jp.com/ads.txt` も自動生成されます。
+3. **リザルト画面バナーの有効化（審査合格後）**:
+   - AdSense 管理画面でゲームリザルト用のディスプレイ広告ユニット（**サイズ固定 320×100 推奨**）を作成し、発行されたスロットIDを Cloudflare 側のビルド変数 `ADSENSE_RESULT_SLOT_ID=<数字のみ>` に設定して再デプロイすると、全ゲームのリザルト画面で広告が自動で有効になります。
+   - ※ゲームページで誤タップを防ぐため、AdSense 管理画面の「自動広告（Auto Ads）」は無効にするか `/games/*` を除外設定にすることをおすすめします。
 
 ---
 
@@ -114,31 +89,11 @@ Cloudflare Pages で `www` なしのルートドメイン（`unimate-jp.com`）�
 
 ### 新しいゲームを追加するとき
 1. `games/<ゲーム名>/` に Vite プロジェクトを作成（`vite.config.ts` に `base: './'` を設定）。
-2. `npm install`（ルートでワークスペース反映）し、`npm run build` で自動的に `dist/games/<ゲーム名>/` へビルドされます。
-3. `site/games/index.html`（および必要に応じて `site/index.html`, `site/portfolio/index.html`, `site/public/sitemap.xml`）に紹介カードとリンクを追加してプッシュすれば自動公開されます。
+2. リザルト画面へ広告枠を含める場合は、`<head>` に `<script defer src="/common/js/result-ad.js"></script>` を入れ、リザルトカード最上部に `<div class="result-ad" data-result-ad="<ゲーム名>" hidden></div>` を配置します。
+3. `npm install`（ルートでワークスペース反映）し、`npm run build && npm run verify` で `dist/games/<ゲーム名>/` への統合と整合性を確認します。
+4. `site/games/index.html`（および `site/index.html`, `site/portfolio/index.html`, `site/public/sitemap.xml`）に紹介カードとリンクを追加してプッシュすれば自動公開されます。
 
 ### ブログ記事を追加するとき
 1. `site/blog/posts/<記事スラッグ>/index.html` を作成（既存記事をコピーして編集すると簡単です）。
-   - `site/vite.config.ts` が自動で HTML を検出するため、設定ファイルの編集は不要です。
-2. `site/blog/index.html` と `site/public/sitemap.xml` に記事リンクを追加してプッシュします。
-
----
-
-## （任意）旧 GitHub Pages URL からのリダイレクト
-
-旧 URL（`https://gemukaihatsu1729.github.io/mousoutero/` や `/zonbi/`）をすでに SNS 等で共有している場合、旧リポジトリ側の `index.html` を次のようなリダイレクト専用ページに差し替えると、既存の訪問者を新ドメインへ自動誘導できます。
-
-```html
-<!DOCTYPE html>
-<html lang="ja">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="refresh" content="0; url=https://unimate-jp.com/games/mousoutero/" />
-    <link rel="canonical" href="https://unimate-jp.com/games/mousoutero/" />
-    <title>移転しました | Unimate JP</title>
-  </head>
-  <body>
-    <p>移転しました。<a href="https://unimate-jp.com/games/mousoutero/">https://unimate-jp.com/games/mousoutero/</a> へ移動します。</p>
-  </body>
-</html>
-```
+   - `site/vite.config.ts` が自動で HTML を検出するため、ビルド設定の編集は不要です。
+2. `site/blog/index.html` と `site/public/sitemap.xml`、`scripts/build-all.mjs` の `requiredOutputs` に記事パスを追加してプッシュします。

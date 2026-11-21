@@ -36,6 +36,31 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://unimate-jp.com/blog/posts/web-audio-api-game-sfx/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://unimate-jp.com/blog/posts/mobile-game-touch-controls/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://unimate-jp.com/blog/posts/shelter-musou-balance-design/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://unimate-jp.com/blog/posts/math-expression-parser-vitest/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://unimate-jp.com/blog/posts/browser-game-adsense-ux-design/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://unimate-jp.com/blog/posts/threejs-mobile-3d-musou/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>

@@ -27,16 +27,41 @@ function listHtmlFiles(dir) {
   return results;
 }
 
+function injectResultAdConfig(targetDir, adsenseClientId, adsenseResultSlotId) {
+  const resultAdPath = path.join(targetDir, 'common', 'js', 'result-ad.js');
+  if (!fs.existsSync(resultAdPath)) {
+    throw new Error('Missing expected asset: dist/common/js/result-ad.js');
+  }
+
+  const content = fs.readFileSync(resultAdPath, 'utf8');
+  const updated = content
+    .replace("'__ADSENSE_CLIENT_ID__'", JSON.stringify(adsenseClientId))
+    .replace("'__ADSENSE_RESULT_SLOT_ID__'", JSON.stringify(adsenseResultSlotId));
+
+  fs.writeFileSync(resultAdPath, updated, 'utf8');
+  if (adsenseClientId && adsenseResultSlotId) {
+    console.log(`✓ Configured dist/common/js/result-ad.js (client=${adsenseClientId}, slot=${adsenseResultSlotId})`);
+  } else {
+    console.log('✓ Configured dist/common/js/result-ad.js (disabled in production until ADSENSE_RESULT_SLOT_ID is set)');
+  }
+}
+
 function injectHeadSnippets(targetDir) {
   const adsenseClientId = (process.env.ADSENSE_CLIENT_ID || '').trim();
+  const adsenseResultSlotId = (process.env.ADSENSE_RESULT_SLOT_ID || '').trim();
   const gaMeasurementId = (process.env.GA_MEASUREMENT_ID || '').trim();
 
   if (adsenseClientId && !/^ca-pub-\d+$/.test(adsenseClientId)) {
     throw new Error(`Invalid ADSENSE_CLIENT_ID format: "${adsenseClientId}" (expected ca-pub-XXXXXXXXXXXXXXXX)`);
   }
+  if (adsenseResultSlotId && !/^\d+$/.test(adsenseResultSlotId)) {
+    throw new Error(`Invalid ADSENSE_RESULT_SLOT_ID format: "${adsenseResultSlotId}" (expected numeric slot ID)`);
+  }
   if (gaMeasurementId && !/^G-[A-Z0-9]+$/i.test(gaMeasurementId)) {
     throw new Error(`Invalid GA_MEASUREMENT_ID format: "${gaMeasurementId}" (expected G-XXXXXXXXXX)`);
   }
+
+  injectResultAdConfig(targetDir, adsenseClientId, adsenseResultSlotId);
 
   const snippets = [];
   if (adsenseClientId) {
@@ -121,12 +146,21 @@ function main() {
     'games/index.html',
     'portfolio/index.html',
     'blog/index.html',
+    'blog/posts/threejs-mobile-3d-musou/index.html',
+    'blog/posts/infinite-flash-anzan-math/index.html',
+    'blog/posts/cloudflare-pages-monorepo/index.html',
+    'blog/posts/web-audio-api-game-sfx/index.html',
+    'blog/posts/mobile-game-touch-controls/index.html',
+    'blog/posts/shelter-musou-balance-design/index.html',
+    'blog/posts/math-expression-parser-vitest/index.html',
+    'blog/posts/browser-game-adsense-ux-design/index.html',
     'about/index.html',
     'privacy/index.html',
     'contact/index.html',
     '404.html',
     'robots.txt',
     'sitemap.xml',
+    'common/js/result-ad.js',
     ...gameSlugs.map((slug) => `games/${slug}/index.html`)
   ];
 

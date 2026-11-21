@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ブラウザゲームの広告配置と誤クリック防止設計：600ms遅延・ボタン間150px・CLSゼロの実装 | Unimate JP</title>
+    <meta
+      name="description"
+      content="フルスクリーン型のスマホブラウザゲームでプレイヤー体験を損なわず、誤クリックによるポリシー違反を防ぐためのリザルト画面限定広告コンポーネント（result-ad.js）の設計を解説します。"
+    />
+    <link rel="canonical" href="https://unimate-jp.com/blog/posts/browser-game-adsense-ux-design/" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="Unimate JP" />
+    <meta property="og:title" content="ブラウザゲームの広告配置と誤クリック防止設計：600ms遅延・ボタン間150px・CLSゼロの実装" />
+    <meta
+      property="og:description"
+      content="プレイ中広告ゼロ、リザルト上部固定320×100、600ms遅延表示、1滞在1回ロード、審査前完全非表示を実現した設計記録。"
+    />
+    <meta property="og:url" content="https://unimate-jp.com/blog/posts/browser-game-adsense-ux-design/" />
+    <meta property="og:image" content="https://unimate-jp.com/og-image.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="/">
+          <img class="brand-mark" src="/favicon.svg" alt="" width="34" height="34" />
+          <span>Unimate JP</span>
+        </a>
+        <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-label="メニューを開く">☰</button>
+        <nav class="nav-links" data-nav-menu aria-label="メインナビゲーション">
+          <a href="/">ホーム</a>
+          <a href="/games/">ゲーム</a>
+          <a href="/portfolio/">ポートフォリオ</a>
+          <a href="/blog/" aria-current="page">ブログ</a>
+          <a href="/about/">運営情報</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="section">
+      <div class="prose-container">
+        <nav class="breadcrumb" aria-label="パンくずリスト">
+          <a href="/">ホーム</a>
+          <span>/</span>
+          <a href="/blog/">ブログ</a>
+          <span>/</span>
+          <span>ブラウザゲーム広告・誤クリック防止設計</span>
+        </nav>
+
+        <article class="article-shell">
+          <div class="tag-row">
+            <span class="tag tag-amber">UX設計</span>
+            <span class="tag tag-neutral">AdSense対策</span>
+            <span class="tag tag-neutral">サイト運営</span>
+          </div>
+          <h1>ブラウザゲームの広告配置と誤クリック防止設計：600ms遅延・ボタン間150px・CLSゼロを実装した理由</h1>
+          <div class="article-meta">
+            <span>公開日: 2026-11-21</span>
+            <span>カテゴリ: インフラ・UI設計</span>
+          </div>
+
+          <p>
+            スマートフォンのフルスクリーンブラウザゲームを運営して広告収益化を目指すとき、最も避けなければならないのが「ゲーム操作と広告の距離が近すぎて誤クリック（誤タップ）を誘発してしまうこと」です。
+            プレイヤーにとってストレスになるだけでなく、Google AdSense のポリシー上も「ゲームプレイ中の領域や操作ボタンの直近への配置」は厳しく見られます。
+          </p>
+          <p>
+            そこで Unimate JP では、公開中の3つのゲームすべてに共通の安全設計スクリプト <code>/common/js/result-ad.js</code> を組み込み、<strong>「遊ぶ体験を守ること」と「クリーンな広告表示」を両立</strong>させる構造にしました。
+          </p>
+
+          <h2>1. プレイ画面には広告を一切置かず、リザルト画面の上部のみに限定</h2>
+          <p>
+            3D無双アクションの移動スティックや攻撃ボタン、フラッシュ暗算の親指テンキーが表示されているプレイ中は、広告要素を一切表示しません。
+            広告スロットを配置するのは、プレイが完全に終了して開く「リザルト画面／ゲームオーバーモーダル」内の最上部のみです。
+          </p>
+          <p>
+            さらに、広告スロットの直下に「共有ボタン」や「リトライボタン」を置くのではなく、間に「ランクスタンプ」「総合スコア」「戦績サマリー」を挟むレイアウトにしました。これにより、<strong>広告下端から最初の操作ボタンまで 250px〜350px 以上</strong>（推奨基準の 150px 以上を余裕でクリア）の距離を確保しています。
+          </p>
+
+          <h2>2. 「連打の誤タップ」と「レイアウトズレ」を同時に防ぐ CSS + JS 設計</h2>
+          <p>
+            ゲーム終了直後は、プレイヤーが直前まで画面を連打しているケースが少なくありません。そこで次の2つを組み合わせています。
+          </p>
+          <ul>
+            <li><strong>事前領域確保（CLSゼロ）：</strong><code>.result-ad</code> に最初から <code>min-height: 118px</code>（ラベル 16px ＋ バナー 100px）の高さを確保し、広告が後から読み込まれてもスコアやボタンが下にガクッとズレないようにしています。</li>
+            <li><strong>600ms の表示遅延：</strong><code>IntersectionObserver</code> と <code>MutationObserver</code> でリザルト画面の表示を検知したあと、最初の 600ms 間は <code>visibility: hidden; pointer-events: none;</code> の状態を維持し、600ms 経過後に <code>is-ready</code> クラスを付けてタップ可能にしています。</li>
+          </ul>
+          <pre><code>// リザルトが開くたびに 600ms のガード時間を設ける
+showTimer = window.setTimeout(function () {
+  if (shown && !isElementHidden(hostScreen)) {
+    container.classList.add('is-ready');
+  }
+}, 600);</code></pre>
+
+          <h2>3. 1ページ滞在につき1回だけロードし、リトライ時にリフレッシュしない</h2>
+          <p>
+            「もう一度遊ぶ」でリトライして再びリザルト画面を開いた際、毎回新しい広告をリクエストし直す実装は、ポリシー違反（不正な自動リフレッシュ）とみなされるリスクがあります。
+            <code>result-ad.js</code> ではコンテナ単位で <code>loaded</code> フラグを持ち、<code>adsbygoogle.push({})</code> は初回表示時の 1 回だけ実行し、2回目以降のリザルト表示では 600ms 遅延の保護のみを再適用する安全な設計にしています。
+          </p>
+
+          <h2>4. 審査前・ローカル開発・本番を環境変数で自動切替</h2>
+          <p>
+            審査通過前やスロットID未設定の段階で、画面上に「空白の枠」や「広告」という文字だけが表示されてしまうと UX を損ねます。
+            そのためビルドスクリプト（<code>scripts/build-all.mjs</code>）と連携し、次のように環境ごとに自動分岐させています。
+          </p>
+          <ul>
+            <li><strong>審査中・スロットID未設定の本番：</strong>モードは <code>disabled</code> となり、DOM上も <code>hidden</code> のまま完全に非表示（余白もゼロ）。</li>
+            <li><strong>ローカル開発（<code>localhost</code> / <code>?adpreview=1</code>）：</strong>点線の <code>320×100</code> プレビュー枠が出現し、600ms 遅延やスクロール挙動を確認可能。</li>
+            <li><strong>本番運用（環境変数設定後）：</strong>スロットIDとパブリッシャーIDが自動注入され、重複読み込みを防ぎながら固定サイズ <code>320×100</code> ユニットを描画。</li>
+          </ul>
+
+          <div class="related-posts">
+            <h3>あわせて読みたい関連記事</h3>
+            <ul>
+              <li><a href="/blog/posts/cloudflare-pages-monorepo/">独自ドメイン＋Cloudflare モノレポで複数ブラウザゲームを統合運用する構成</a></li>
+              <li><a href="/blog/posts/mobile-game-touch-controls/">スマホブラウザで「移動しながら攻撃」を実現するマルチタッチ仮想スティック実装</a></li>
+              <li><a href="/privacy/">プライバシーポリシー（Cookie・Google AdSense・localStorage について）</a></li>
+            </ul>
+          </div>
+
+          <p><a class="btn btn-outline btn-sm" href="/blog/">← ブログ記事一覧へ戻る</a></p>
+        </article>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer-grid">
+          <div>
+            <a class="footer-brand" href="/">
+              <img class="brand-mark" src="/favicon.svg" alt="" width="30" height="30" />
+              <span>Unimate JP</span>
+            </a>
+            <p class="footer-desc">オリジナル無料ブラウザゲーム、個人制作ポートフォリオ、Web技術・開発ブログを発信するサイトです。</p>
+          </div>
+          <div class="footer-col">
+            <h4>コンテンツ</h4>
+            <ul>
+              <li><a href="/games/">ゲームポータル</a></li>
+              <li><a href="/portfolio/">ポートフォリオ</a></li>
+              <li><a href="/blog/">開発ブログ</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>サイト情報</h4>
+            <ul>
+              <li><a href="/about/">運営者情報</a></li>
+              <li><a href="/privacy/">プライバシーポリシー</a></li>
+              <li><a href="/contact/">お問い合わせ</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <span>© 2026 Unimate JP (unimate-jp.com). All rights reserved.</span>
+          <span>Powered by Cloudflare</span>
+        </div>
+      </div>
+    </footer>
+
+    <script type="module" src="/src/scripts/main.ts"></script>
+  </body>
+</html>

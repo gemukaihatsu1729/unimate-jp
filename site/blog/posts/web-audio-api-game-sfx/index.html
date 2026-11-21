@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>外部音声ファイルゼロ！Web Audio API でブラウザゲームの効果音を合成する実装手法 | Unimate JP</title>
+    <meta
+      name="description"
+      content="MP3やWAVを使わず、Web Audio APIのオシレーターとノイズバーストだけで学校のチャイム・警報・爆発音・剣戟音を生成するブラウザゲーム向けサウンド実装を解説します。"
+    />
+    <link rel="canonical" href="https://unimate-jp.com/blog/posts/web-audio-api-game-sfx/" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="Unimate JP" />
+    <meta property="og:title" content="外部音声ファイルゼロ！Web Audio API でブラウザゲームの効果音を合成する実装手法" />
+    <meta
+      property="og:description"
+      content="iOS Safariの自動再生制限への対処から、オシレーター・ノイズを使った効果音レシピまで実コードをもとに解説します。"
+    />
+    <meta property="og:url" content="https://unimate-jp.com/blog/posts/web-audio-api-game-sfx/" />
+    <meta property="og:image" content="https://unimate-jp.com/games/mousoutero/og-image.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="/">
+          <img class="brand-mark" src="/favicon.svg" alt="" width="34" height="34" />
+          <span>Unimate JP</span>
+        </a>
+        <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-label="メニューを開く">☰</button>
+        <nav class="nav-links" data-nav-menu aria-label="メインナビゲーション">
+          <a href="/">ホーム</a>
+          <a href="/games/">ゲーム</a>
+          <a href="/portfolio/">ポートフォリオ</a>
+          <a href="/blog/" aria-current="page">ブログ</a>
+          <a href="/about/">運営情報</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="section">
+      <div class="prose-container">
+        <nav class="breadcrumb" aria-label="パンくずリスト">
+          <a href="/">ホーム</a>
+          <span>/</span>
+          <a href="/blog/">ブログ</a>
+          <span>/</span>
+          <span>Web Audio API 効果音合成</span>
+        </nav>
+
+        <article class="article-shell">
+          <div class="tag-row">
+            <span class="tag">Web Audio API</span>
+            <span class="tag tag-neutral">TypeScript</span>
+            <span class="tag tag-neutral">ゲーム開発</span>
+          </div>
+          <h1>外部音声ファイルゼロ！Web Audio API でブラウザゲームのチャイム・警報・爆発音を合成する実装手法</h1>
+          <div class="article-meta">
+            <span>公開日: 2026-11-21</span>
+            <span>カテゴリ: ゲーム開発・サウンド</span>
+          </div>
+
+          <p>
+            ブラウザゲームで効果音を鳴らすとき、MP3 や WAV ファイルを数十個用意してプリロードする方法は一般的ですが、
+            「通信量が増える」「初回起動時の待機時間が伸びる」「効果音ごとの音量バランスやバリエーションをコードから微調整しにくい」という悩みが出がちです。
+            そこで Unimate JP の3作品（<a href="/games/mousoutero/">授業中妄想クライシス</a>・<a href="/games/zonbi/">SHELTER MUSOU</a>・<a href="/games/flashanzan/">無限フラッシュ暗算</a>）では、
+            外部音声ファイルを一切使わず、<strong>ブラウザ標準の Web Audio API だけで全効果音をリアルタイム合成</strong>しています。
+          </p>
+
+          <h2>1. なぜゼロ依存シンセを選んだのか</h2>
+          <ul>
+            <li><strong>通信・ロード時間ゼロ：</strong>音声アセットのフェッチ待ちがないため、URLを開いた瞬間にタイトル画面が操作できます。</li>
+            <li><strong>状態に応じた動的変化：</strong>コンボ数に応じて音程を上げたり、軽い攻撃と強撃でエンベロープを変えたりする演出が数行で書けます。</li>
+            <li><strong>著作権・ライセンス管理が不要：</strong>すべての音がブラウザ内で数式・波形から生成されるため、外部素材サイトの利用規約管理コストが発生しません。</li>
+          </ul>
+
+          <h2>2. 最重要ポイント：iOS Safari 等の自動再生制限の解除</h2>
+          <p>
+            モバイルブラウザでは、ユーザーのジェスチャー（タップやクリック）なしに <code>AudioContext</code> から音を鳴らすことが制限されています。
+            そこで <code>AudioManager</code> に <code>unlock()</code> メソッドを用意し、「スタートボタン押下」や「仮想スティック・攻撃ボタンの初回 <code>pointerdown</code>」といった入力イベントの同期コールバック内で初期化と <code>ctx.resume()</code> を呼び出しています。
+          </p>
+          <pre><code>unlock(): void {
+  try {
+    if (!this.ctx) {
+      const AudioCtx =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (!AudioCtx) return;
+      this.ctx = new AudioCtx();
+    }
+    if (this.ctx.state === 'suspended') {
+      void this.ctx.resume();
+    }
+  } catch {
+    // 制限環境でもゲーム本体は止めない
+  }
+}</code></pre>
+          <p>
+            重要なのは、非同期処理（<code>setTimeout</code> や <code>Promise.then</code>）の外側、つまりユーザーが画面に触れたそのイベントハンドラの先頭で <code>unlock()</code> を呼ぶことです。これにより iOS Safari でも確実にオーディオがアンロックされます。
+          </p>
+
+          <h2>3. よく使う4つの効果音合成レシピ</h2>
+          <p>
+            基本は <code>OscillatorNode</code>（波形）と <code>GainNode</code>（音量エンベロープ）の組み合わせ、そして打撃・風切り・爆発に使うホワイトノイズ（<code>AudioBuffer</code>）の 2 系統です。
+          </p>
+
+          <h3>① 学校のチャイム（Triangle波のシーケンス）</h3>
+          <p>
+            「授業中妄想クライシス」の冒頭で鳴るウェストミンスターの鐘は、周波数 <code>[659.25, 523.25, 587.33, 392.0]</code> Hz の <code>triangle</code> 波を 0.42 秒間隔でスケジュールして鳴らしています。
+            <code>exponentialRampToValueAtTime(0.001, ...)</code> で余韻を減衰させるだけで、驚くほど「学校のチャイムらしさ」が出ます。
+          </p>
+
+          <h3>② 緊急警報サイレン（Sawtooth波のピッチスイープ）</h3>
+          <p>
+            テロリスト突入時のアラームは、倍音を多く含む <code>sawtooth</code> 波を使い、880Hz から 640Hz へ 0.18 秒かけて線形下降させるパターンを 4 回繰り返すことで緊張感を演出しています。
+          </p>
+
+          <h3>③ 爆発音・打撃音（Sine波の低音落下 ＋ ローパスノイズ）</h3>
+          <p>
+            爆発や重いヒットには、「140Hz → 28Hz へ急降下する <code>sine</code> 波」と「ローパスフィルタを通したホワイトノイズ」を重ねています。
+            低音の「ドン！」という芯と、ノイズの「バシャッ／ドゴッ」という質感を混ぜることで、スマホの小さなスピーカーでも迫力のある打撃感になります。
+          </p>
+
+          <h3>④ パリィ・金属音（倍音クラスター）</h3>
+          <p>
+            竹刀の閃光パリィ時などは、<code>[1320, 1980, 2640]</code> Hz の <code>sine</code> 波を 15ms ずつずらして同時に鳴らすと、澄んだ金属の共鳴音が生まれます。
+          </p>
+
+          <h2>4. ミュート切り替えとメモリ・ノード解放の注意点</h2>
+          <p>
+            <code>OscillatorNode</code> は一度 <code>stop()</code> すると自動破棄されるワンショット設計になっていますが、使い捨ての <code>GainNode</code> を大量に繋ぎっぱなしにすると負荷の原因になります。
+            <code>osc.stop(endTime)</code> を必ず明示すること、そしてゲームプレイ中に同じフレーム内で何十体も同時ヒットした際に音が割れないよう、最大ゲインを <code>0.15〜0.28</code> 程度に抑えることが安定運用のコツです。
+          </p>
+
+          <div class="callout">
+            今回解説したシンセ効果音は、<a href="/games/mousoutero/">授業中妄想クライシス</a> と
+            <a href="/games/zonbi/">SHELTER MUSOU</a> で実際の打撃音・チャイム・爆発音として体験できます（画面右上の 🔊 ボタンでいつでもミュート切り替え可能です）。
+          </div>
+
+          <div class="related-posts">
+            <h3>あわせて読みたい関連記事</h3>
+            <ul>
+              <li><a href="/blog/posts/threejs-mobile-3d-musou/">Three.js と TypeScript でスマホ向け3D無双ゲームを作る設計ポイント</a></li>
+              <li><a href="/blog/posts/mobile-game-touch-controls/">スマホブラウザで「移動しながら攻撃」を実現する Pointer Events マルチタッチ仮想スティック実装</a></li>
+              <li><a href="/blog/posts/shelter-musou-balance-design/">3D無双×タワーディフェンスのゲームバランス設計：ウェーブ難易度曲線と強化パーク</a></li>
+            </ul>
+          </div>
+
+          <p><a class="btn btn-outline btn-sm" href="/blog/">← ブログ記事一覧へ戻る</a></p>
+        </article>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer-grid">
+          <div>
+            <a class="footer-brand" href="/">
+              <img class="brand-mark" src="/favicon.svg" alt="" width="30" height="30" />
+              <span>Unimate JP</span>
+            </a>
+            <p class="footer-desc">オリジナル無料ブラウザゲーム、個人制作ポートフォリオ、Web技術・開発ブログを発信するサイトです。</p>
+          </div>
+          <div class="footer-col">
+            <h4>コンテンツ</h4>
+            <ul>
+              <li><a href="/games/">ゲームポータル</a></li>
+              <li><a href="/portfolio/">ポートフォリオ</a></li>
+              <li><a href="/blog/">開発ブログ</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>サイト情報</h4>
+            <ul>
+              <li><a href="/about/">運営者情報</a></li>
+              <li><a href="/privacy/">プライバシーポリシー</a></li>
+              <li><a href="/contact/">お問い合わせ</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <span>© 2026 Unimate JP (unimate-jp.com). All rights reserved.</span>
+          <span>Powered by Cloudflare</span>
+        </div>
+      </div>
+    </footer>
+
+    <script type="module" src="/src/scripts/main.ts"></script>
+  </body>
+</html>
