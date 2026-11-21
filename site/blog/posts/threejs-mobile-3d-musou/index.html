@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Three.js と TypeScript でスマホ向け3D無双ゲームを作る設計ポイント | Unimate JP</title>
+    <meta
+      name="description"
+      content="Three.js と TypeScript を使ってスマートフォンブラウザ上で軽快に動く3D無双アクションゲームを制作する際の、ローポリモデル設計、タッチ操作、ヒット演出のポイントを解説します。"
+    />
+    <link rel="canonical" href="https://unimate-jp.com/blog/posts/threejs-mobile-3d-musou/" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="Unimate JP" />
+    <meta property="og:title" content="Three.js と TypeScript でスマホ向け3D無双ゲームを作る設計ポイント" />
+    <meta
+      property="og:description"
+      content="ブラウザ上で爽快な3D無双ゲームを動かすための軽量ローポリ表現、タッチUI、演出設計をまとめました。"
+    />
+    <meta property="og:url" content="https://unimate-jp.com/blog/posts/threejs-mobile-3d-musou/" />
+    <meta property="og:image" content="https://unimate-jp.com/games/mousoutero/og-image.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="/">
+          <img class="brand-mark" src="/favicon.svg" alt="" width="34" height="34" />
+          <span>Unimate JP</span>
+        </a>
+        <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-label="メニューを開く">☰</button>
+        <nav class="nav-links" data-nav-menu aria-label="メインナビゲーション">
+          <a href="/">ホーム</a>
+          <a href="/games/">ゲーム</a>
+          <a href="/portfolio/">ポートフォリオ</a>
+          <a href="/blog/" aria-current="page">ブログ</a>
+          <a href="/about/">運営情報</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="section">
+      <div class="prose-container">
+        <nav class="breadcrumb" aria-label="パンくずリスト">
+          <a href="/">ホーム</a>
+          <span>/</span>
+          <a href="/blog/">ブログ</a>
+          <span>/</span>
+          <span>Three.js × スマホ向け3D無双ゲーム設計</span>
+        </nav>
+
+        <article class="article-shell">
+          <div class="tag-row">
+            <span class="tag">Three.js</span>
+            <span class="tag tag-neutral">TypeScript</span>
+            <span class="tag tag-neutral">ゲーム開発</span>
+          </div>
+          <h1>Three.js と TypeScript でスマホ向け3D無双ゲームを作る設計ポイント</h1>
+          <div class="article-meta">
+            <span>公開日: 2026-11-21</span>
+            <span>カテゴリ: ゲーム開発・フロントエンド</span>
+          </div>
+
+          <p>
+            ブラウザ上で3Dアクションゲームを動かす場合、最大のハードルになるのが「起動の速さ」と「スマートフォンでの操作感・フレームレート維持」です。
+            Unimate JP で公開している <a href="/games/mousoutero/">授業中妄想クライシス</a> と
+            <a href="/games/zonbi/">SHELTER MUSOU</a> では、Three.js と TypeScript のシンプルな構成で爽快な無双体験を実現するために、いくつかの設計方針を徹底しました。
+          </p>
+
+          <h2>1. 外部3Dモデルを使わずプロシージャルなローポリで組む</h2>
+          <p>
+            GLTF/GLB などの外部3Dアセットや高解像度テクスチャを大量に読み込むと、モバイル回線では初回ロードに数秒以上かかり、ユーザーがタイトル画面を見る前に離脱してしまいます。
+            そこで、キャラクター・武器・教室の机や黒板・防衛タレットといった要素は、Three.js のプリミティブ（Box / Cylinder / Cone など）を組み合わせたプロシージャル・ローポリモデルとしてコード上で組み立てています。
+          </p>
+          <ul>
+            <li>初回ロードが軽く、URLをタップして1秒前後でタイトル画面が立ち上がる</li>
+            <li>武器の持ち替えやカラーバリエーションをコードから即座に反映できる</li>
+            <li>ポリゴン数が少ないため、数十体の敵が同時に出現してもスマートフォンで60fps近くを維持しやすい</li>
+          </ul>
+
+          <h2>2. マルチタッチ前提の仮想スティック＆右ボタン配置</h2>
+          <p>
+            スマホアクションでストレスになりやすいのが、「移動しながら攻撃や回避を押したら入力が途切れる」問題です。
+            <code>TouchInputManager</code> では Pointer Events の <code>pointerId</code> ごとにタッチを追跡し、左エリアの仮想ジョイスティックと右側のアクションボタン群、さらに画面中央のカメラ回転スワイプが互いに干渉しないよう分離しています。
+          </p>
+          <p>
+            また、CSS で <code>touch-action: none</code> とセーフエリア（<code>env(safe-area-inset-bottom)</code>）を適切に指定することで、iOS Safari などでプレイ中に意図せずページがスクロールしたり拡大されたりする事故を防いでいます。
+          </p>
+
+          <h2>3. 爽快感を決める「ヒット演出」と Web Audio 合成</h2>
+          <p>
+            ローポリのシンプルな見た目でも「殴って気持ちいい」「斬って爽快」と感じさせる鍵は、攻撃が当たった瞬間のフィードバックです。
+          </p>
+          <ul>
+            <li><strong>ヒットストップ＆スローモーション：</strong>強い一撃やボス撃破時に数フレームだけ時間経過を遅くし、重みを演出</li>
+            <li><strong>画面フラッシュとカメラシェイク：</strong>ダメージや覚醒発動時にカメラ位置を微振動させて臨場感を強化</li>
+            <li><strong>Web Audio API による効果音合成：</strong>外部MP3を読み込まずオシレーターとノイズで打撃音やアラートをリアルタイム生成</li>
+          </ul>
+
+          <div class="callout">
+            実際に動作するデモは <a href="/games/mousoutero/">授業中妄想クライシス</a> および
+            <a href="/games/zonbi/">SHELTER MUSOU</a> からブラウザですぐ体験できます。
+          </div>
+
+          <h2>4. ユニットテストでゲームロジックの品質を担保する</h2>
+          <p>
+            3D描画部分は目視確認が必要ですが、当たり判定（<code>CollisionSystem</code>）、スコア計算・ランキング集計（<code>RankingManager</code>）、SNSシェア文生成（<code>ResultShare</code>）などの純粋なロジックは描画層から分離し、Vitest で自動テストを回せる構造にしています。
+            ドメイン移行やバランス調整を行ってもコアロジックが壊れていないことを即座に確認できるため、個人開発でも安心して改修を続けられます。
+          </p>
+
+          <p><a class="btn btn-outline btn-sm" href="/blog/">← ブログ記事一覧へ戻る</a></p>
+        </article>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer-grid">
+          <div>
+            <a class="footer-brand" href="/">
+              <img class="brand-mark" src="/favicon.svg" alt="" width="30" height="30" />
+              <span>Unimate JP</span>
+            </a>
+            <p class="footer-desc">オリジナル無料ブラウザゲーム、個人制作ポートフォリオ、Web技術・開発ブログを発信するサイトです。</p>
+          </div>
+          <div class="footer-col">
+            <h4>コンテンツ</h4>
+            <ul>
+              <li><a href="/games/">ゲームポータル</a></li>
+              <li><a href="/portfolio/">ポートフォリオ</a></li>
+              <li><a href="/blog/">開発ブログ</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>サイト情報</h4>
+            <ul>
+              <li><a href="/about/">運営者情報</a></li>
+              <li><a href="/privacy/">プライバシーポリシー</a></li>
+              <li><a href="/contact/">お問い合わせ</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <span>© 2026 Unimate JP (unimate-jp.com). All rights reserved.</span>
+          <span>Powered by Cloudflare Pages</span>
+        </div>
+      </div>
+    </footer>
+
+    <script type="module" src="/src/scripts/main.ts"></script>
+  </body>
+</html>

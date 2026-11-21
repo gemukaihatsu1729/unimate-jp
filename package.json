@@ -1,0 +1,21 @@
+{
+  "name": "unimate-jp-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "site",
+    "games/*"
+  ],
+  "scripts": {
+    "build": "node scripts/build-all.mjs",
+    "build:site": "npm run build --workspace=site",
+    "dev": "npm run dev --workspace=site",
+    "dev:site": "npm run dev --workspace=site",
+    "dev:mousoutero": "npm run dev --workspace=games/mousoutero",
+    "dev:zonbi": "npm run dev --workspace=games/zonbi",
+    "dev:flashanzan": "npm run dev --workspace=games/flashanzan",
+    "test": "npm run test --workspaces --if-present",
+    "preview": "node scripts/preview-dist.mjs"
+  }
+}

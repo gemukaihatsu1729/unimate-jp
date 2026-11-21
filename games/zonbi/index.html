@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#0d1117" />
+  <meta
+    name="description"
+    content="押し寄せるゾンビの大群とタイタンボスを大剣・ツイン刃・雷ハンマーと防衛タレットで薙ぎ払うスマホ対応ローポリ3D無双×タワーディフェンス。ブラウザで無料ですぐ遊べます。"
+  />
+  <link rel="canonical" href="https://unimate-jp.com/games/zonbi/" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Unimate JP — 無料ブラウザゲーム" />
+  <meta property="og:title" content="SHELTER MUSOU — 3Dゾンビ無双防衛" />
+  <meta
+    property="og:description"
+    content="押し寄せるゾンビの大群とタイタンボスを大剣・ツイン刃・雷ハンマーと防衛タレットで薙ぎ払うスマホ対応ローポリ3D無双×タワーディフェンス！"
+  />
+  <meta property="og:url" content="https://unimate-jp.com/games/zonbi/" />
+  <meta property="og:image" content="https://unimate-jp.com/games/zonbi/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="SHELTER MUSOU — 3Dゾンビ無双防衛" />
+  <meta
+    name="twitter:description"
+    content="押し寄せるゾンビの大群とタイタンボスを大剣・ツイン刃・雷ハンマーと防衛タレットで薙ぎ払うスマホ対応ローポリ3D無双×タワーディフェンス！"
+  />
+  <meta name="twitter:image" content="https://unimate-jp.com/games/zonbi/og-image.png" />
+  <title>SHELTER MUSOU — 3Dゾンビ無双防衛</title>
+</head>
+<body>
+  <div id="app" class="app-root">
+    <!-- Live 3D WebGL Canvas (Title 3D Preview + Musou Gameplay) -->
+    <canvas id="game-canvas"></canvas>
+
+    <!-- Dynamic FX Overlays -->
+    <div id="hit-flash" class="hit-flash"></div>
+    <div id="musou-flash" class="musou-flash"></div>
+    <div id="fx-popups" class="fx-popups"></div>
+
+    <!-- =========================================================
+         1. TITLE & 3D LOADOUT SCREEN (最初の画面で装備選択)
+         ========================================================= -->
+    <section id="screen-loadout" class="screen screen-loadout active" aria-label="装備選択画面">
+      <header class="loadout-header">
+        <div class="title-left">
+          <div class="eyebrow">3D LOW-POLY MUSOU × TOWER DEFENSE</div>
+          <h1 class="game-title">SHELTER <span>MUSOU</span></h1>
+        </div>
+        <div class="record-box">
+          <span class="rec-k">BEST WAVE</span>
+          <span class="rec-v" id="best-wave-text">-</span>
+        </div>
+      </header>
+
+      <!-- Transparent middle window showing live 3D Hero holding selected weapon -->
+      <div class="hero-stage-spacer" aria-hidden="true">
+        <div class="stage-chip" id="stage-weapon-chip">🔥 ブレイズ大剣 装備中</div>
+      </div>
+
+      <!-- Compact Mobile Equipment Selector Dock -->
+      <div class="loadout-dock">
+        <div class="equip-group">
+          <div class="group-label">
+            <span>01 メイン武器</span>
+            <strong id="sel-weapon-name">ブレイズ大剣</strong>
+          </div>
+          <div class="card-row" id="grid-weapons"></div>
+        </div>
+
+        <div class="equip-group">
+          <div class="group-label">
+            <span>02 防衛タレット</span>
+            <strong id="sel-turret-name">火炎放射塔</strong>
+          </div>
+          <div class="card-row" id="grid-turrets"></div>
+        </div>
+
+        <div class="equip-group">
+          <div class="group-label">
+            <span>03 無双奥義</span>
+            <strong id="sel-ultimate-name">クラスター爆撃</strong>
+          </div>
+          <div class="card-row" id="grid-ultimates"></div>
+        </div>
+
+        <div class="equip-brief" id="equip-brief">
+          広範囲の炎上斬撃でゾンビの大群を一気に薙ぎ払う大剣。強撃で360°炎の竜巻！
+        </div>
+
+        <button id="btn-start-game" class="btn-cta" type="button">
+          <span class="cta-main">⚔️ 防衛出撃</span>
+          <span class="cta-sub">スマホ操作専用・無制限ウェーブ</span>
+        </button>
+
+        <a class="portal-back-link" href="/games/">← 他のゲームを見る（Unimate JP）</a>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         2. GAMEPLAY HUD & SMARTPHONE TOUCH CONTROLS
+         ========================================================= -->
+    <section id="screen-game" class="screen screen-game" aria-label="無双防衛バトル画面">
+      <!-- Camera swipe & 3D Turret Pad tap zone -->
+      <div id="camera-swipe-zone" class="camera-swipe-zone"></div>
+
+      <!-- Top HUD -->
+      <header class="hud-top">
+        <div class="hud-row">
+          <div class="hud-pill wave-pill">
+            <span class="hk">WAVE</span>
+            <span class="hv" id="hud-wave">1</span>
+          </div>
+          <div class="hud-pill">
+            <span class="hk">残り</span>
+            <span class="hv" id="hud-remaining">0</span>
+          </div>
+          <div class="hud-pill scrap-pill">
+            <span class="hk">⚙️</span>
+            <span class="hv" id="hud-scrap">100</span>
+          </div>
+          <div class="hud-pill kill-pill">
+            <span class="hk">💀</span>
+            <span class="hv" id="hud-kills">0</span>
+          </div>
+          <div class="hud-icons">
+            <button id="btn-mute" class="icon-btn" type="button" aria-label="音声切替">🔊</button>
+            <button id="btn-pause" class="icon-btn" type="button" aria-label="一時停止">⏸</button>
+          </div>
+        </div>
+
+        <!-- Dual Status Bars: Shelter HP + Hero HP -->
+        <div class="bars-grid">
+          <div class="bar-unit">
+            <div class="bar-head">
+              <span>🛡️ 避難所</span>
+              <span id="hud-shelter-text">500/500</span>
+            </div>
+            <div class="bar-track">
+              <div class="bar-fill shelter-fill" id="hud-shelter-fill"></div>
+            </div>
+          </div>
+          <div class="bar-unit">
+            <div class="bar-head">
+              <span>❤️ ヒーロー</span>
+              <span id="hud-hero-text">180/180</span>
+            </div>
+            <div class="bar-track">
+              <div class="bar-fill hero-fill" id="hud-hero-fill"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Boss HP Bar -->
+        <div class="boss-bar hidden" id="boss-bar">
+          <div class="boss-head">
+            <span id="boss-name">☣️ TITAN BOSS</span>
+            <span id="boss-hp-text">1200</span>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill boss-fill" id="boss-hp-fill"></div>
+          </div>
+        </div>
+
+        <!-- Shelter Under Attack Alert -->
+        <div class="shelter-alert hidden" id="shelter-alert">⚠️ 避難所が襲撃されている！急いで防衛せよ！</div>
+      </header>
+
+      <!-- Musou Combo Counter (Top-Right) -->
+      <div class="combo-box hidden" id="combo-box">
+        <div class="combo-num" id="combo-num">0</div>
+        <div class="combo-label">HITS!!</div>
+        <div class="combo-rank" id="combo-rank">MUSOU</div>
+      </div>
+
+      <!-- Wave Announcement Banner -->
+      <div class="wave-banner hidden" id="wave-banner">
+        <div class="wb-sub" id="wb-sub">INCOMING HORDE</div>
+        <div class="wb-title" id="wb-title">WAVE 1</div>
+        <div class="wb-meta" id="wb-meta">ゾンビ 18体 襲来！</div>
+      </div>
+
+      <!-- Wave Clear Intermission Skip Bar -->
+      <div class="intermission-bar hidden" id="intermission-bar">
+        <span id="intermission-text">次のウェーブまで 4秒</span>
+        <button id="btn-skip-wave" class="btn-skip" type="button">今すぐ次へ (+20⚙️)</button>
+      </div>
+
+      <!-- 3D Turret Pad Build / Upgrade Sheet -->
+      <div class="pad-sheet hidden" id="pad-sheet" role="dialog" aria-label="防衛拠点メニュー">
+        <div class="pad-head">
+          <span id="pad-sheet-title">防衛拠点 #1</span>
+          <button id="btn-close-pad" class="pad-close" type="button">✕</button>
+        </div>
+        <div id="pad-sheet-body"></div>
+      </div>
+
+      <!-- Smartphone Left Controls: Quick Build/Repair + Virtual Joystick -->
+      <div class="left-utility-stack">
+        <button id="btn-context-pad" class="util-pill pad-pill hidden" type="button">
+          <span class="up-icon">🏗️</span>
+          <span class="up-text" id="context-pad-label">砲塔設置</span>
+        </button>
+        <button id="btn-repair" class="util-pill repair-pill" type="button">
+          <span class="up-icon">🔧</span>
+          <span class="up-text">避難所修理 65⚙️</span>
+        </button>
+      </div>
+
+      <div id="joystick-zone" class="joystick-zone" aria-label="移動スティック">
+        <div id="joystick-base" class="joystick-base">
+          <div id="joystick-knob" class="joystick-knob"></div>
+        </div>
+      </div>
+
+      <!-- Smartphone Right Controls: Hyrule Warriors Action Cluster -->
+      <div class="action-cluster">
+        <!-- Musou Ultimate Button -->
+        <button id="btn-musou" class="act-btn btn-musou" type="button">
+          <div class="musou-fill-ring" id="musou-fill-bar"></div>
+          <span class="ab-icon" id="hud-ult-icon">☄️</span>
+          <span class="ab-label" id="hud-ult-label">無双</span>
+          <span class="ab-sub" id="hud-musou-pct">0%</span>
+        </button>
+
+        <!-- Strong AoE Attack Button -->
+        <button id="btn-strong" class="act-btn btn-strong" type="button">
+          <div class="cd-overlay" id="strong-cd-overlay"></div>
+          <span class="ab-icon">💥</span>
+          <span class="ab-label">強撃</span>
+          <span class="ab-sub" id="strong-cd-text">READY</span>
+        </button>
+
+        <!-- Dodge Dash Button -->
+        <button id="btn-dodge" class="act-btn btn-dodge" type="button">
+          <div class="cd-overlay" id="dodge-cd-overlay"></div>
+          <span class="ab-icon">💨</span>
+          <span class="ab-label">回避</span>
+        </button>
+
+        <!-- Primary Musou Slash Combo Button (Tap or Hold!) -->
+        <button id="btn-attack" class="act-btn btn-attack" type="button">
+          <span class="ab-icon" id="hud-atk-icon">⚔️</span>
+          <span class="ab-label">斬撃</span>
+          <span class="ab-sub">連打/長押し</span>
+        </button>
+      </div>
+
+      <!-- Supply Drop Perk Modal (Every 3 waves) -->
+      <div class="modal-backdrop hidden" id="modal-perk">
+        <div class="modal-card">
+          <div class="m-eyebrow">SUPPLY DROP</div>
+          <h3 class="m-title">物資投下！強化を選択</h3>
+          <p class="m-desc">ウェーブ突破報酬としてヒーローと避難所を永続強化</p>
+          <div class="perk-list" id="perk-list"></div>
+        </div>
+      </div>
+
+      <!-- Pause Modal -->
+      <div class="modal-backdrop hidden" id="modal-pause">
+        <div class="modal-card">
+          <div class="m-eyebrow">PAUSED</div>
+          <h3 class="m-title">作戦一時停止</h3>
+          <div class="stat-strip" id="pause-stats"></div>
+          <div class="m-actions">
+            <button id="btn-resume" class="m-btn primary" type="button">防衛を再開</button>
+            <button id="btn-pause-retry" class="m-btn secondary" type="button">最初からやり直す</button>
+            <button id="btn-pause-loadout" class="m-btn ghost" type="button">装備選択に戻る</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Game Over Modal -->
+      <div class="modal-backdrop hidden" id="modal-gameover">
+        <div class="modal-card">
+          <div class="gameover-top-row">
+            <div>
+              <div class="m-eyebrow danger" id="gameover-reason">SHELTER BREACHED</div>
+              <h3 class="m-title" id="gameover-title">避難所が陥落した…</h3>
+            </div>
+            <div class="rank-stamp rank-C" id="res-rank-stamp">C</div>
+          </div>
+          <div class="record-pill hidden" id="new-record-pill">🏆 NEW RECORD!</div>
+          <div class="commander-quote" id="res-comment"></div>
+          <div class="res-grid">
+            <div class="res-cell"><span class="rk">到達WAVE</span><span class="rv" id="res-wave">1</span></div>
+            <div class="res-cell"><span class="rk">総撃破数</span><span class="rv" id="res-kills">0</span></div>
+            <div class="res-cell"><span class="rk">最大COMBO</span><span class="rv" id="res-combo">0</span></div>
+          </div>
+          <div class="res-loadout" id="res-loadout"></div>
+          <div class="share-section">
+            <div class="share-buttons-row">
+              <button id="btn-share-x" class="btn-share btn-share-x" type="button">𝕏 シェア</button>
+              <button id="btn-share-line" class="btn-share btn-share-line" type="button">LINE</button>
+              <button id="btn-share-native" class="btn-share btn-share-copy" type="button">📤 共有/コピー</button>
+            </div>
+            <div id="share-feedback" class="share-feedback" aria-live="polite"></div>
+          </div>
+          <div class="m-actions">
+            <button id="btn-retry-same" class="m-btn primary" type="button">同じ装備で再出撃</button>
+            <button id="btn-back-loadout" class="m-btn secondary" type="button">装備を変更する</button>
+          </div>
+          <a class="portal-back-link" href="/games/">← ゲームポータルへ戻る（Unimate JP）</a>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

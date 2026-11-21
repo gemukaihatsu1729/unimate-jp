@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>開発ブログ — ゲーム制作・Web技術の記録 | Unimate JP</title>
+    <meta
+      name="description"
+      content="Unimate JP の開発ブログ。Three.js を使ったスマホ向け3Dブラウザゲーム開発、数学ゲームの設計、Cloudflare Pages モノレポ運用などの記事を公開しています。"
+    />
+    <link rel="canonical" href="https://unimate-jp.com/blog/" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Unimate JP" />
+    <meta property="og:title" content="開発ブログ — ゲーム制作・Web技術の記録 | Unimate JP" />
+    <meta
+      property="og:description"
+      content="ブラウザゲーム制作の裏側や TypeScript・Three.js・Cloudflare Pages に関する技術記事をまとめています。"
+    />
+    <meta property="og:url" content="https://unimate-jp.com/blog/" />
+    <meta property="og:image" content="https://unimate-jp.com/og-image.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="/">
+          <img class="brand-mark" src="/favicon.svg" alt="" width="34" height="34" />
+          <span>Unimate JP</span>
+        </a>
+        <button
+          class="nav-toggle"
+          type="button"
+          data-nav-toggle
+          aria-expanded="false"
+          aria-label="メニューを開く"
+        >
+          ☰
+        </button>
+        <nav class="nav-links" data-nav-menu aria-label="メインナビゲーション">
+          <a href="/">ホーム</a>
+          <a href="/games/">ゲーム</a>
+          <a href="/portfolio/">ポートフォリオ</a>
+          <a href="/blog/" aria-current="page">ブログ</a>
+          <a href="/about/">運営情報</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero hero-compact">
+        <div class="container">
+          <div class="hero-eyebrow">DEV BLOG &amp; NOTES</div>
+          <h1>個人開発・技術ブログ</h1>
+          <p class="hero-lead">
+            ブラウザゲーム制作における設計の試行錯誤、フロントエンド技術メモ、サイト運用のノウハウを発信しています。
+          </p>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="grid-3">
+            <article class="card">
+              <div class="card-body">
+                <div class="tag-row">
+                  <span class="tag">Three.js</span>
+                  <span class="tag tag-neutral">ゲーム開発</span>
+                </div>
+                <div class="card-meta">公開日: 2026-11-21</div>
+                <h2 class="card-title">
+                  <a href="/blog/posts/threejs-mobile-3d-musou/">
+                    Three.js と TypeScript でスマホ向け3D無双ゲームを作る設計ポイント
+                  </a>
+                </h2>
+                <p class="card-desc">
+                  「授業中妄想クライシス」や「SHELTER MUSOU」の制作を通して得た、軽量ローポリ描画、仮想ジョイスティック実装、爽快な手触り演出のポイントを解説します。
+                </p>
+                <div class="card-actions">
+                  <a class="btn btn-outline btn-sm" href="/blog/posts/threejs-mobile-3d-musou/">記事を読む →</a>
+                </div>
+              </div>
+            </article>
+
+            <article class="card">
+              <div class="card-body">
+                <div class="tag-row">
+                  <span class="tag tag-green">数学×ゲーム</span>
+                  <span class="tag tag-neutral">UI設計</span>
+                </div>
+                <div class="card-meta">公開日: 2026-11-21</div>
+                <h2 class="card-title">
+                  <a href="/blog/posts/infinite-flash-anzan-math/">
+                    「無限フラッシュ暗算」— 高校数学の極限をリアルタイム暗算ゲームにした仕組み
+                  </a>
+                </h2>
+                <p class="card-desc">
+                  等比級数から部分分数・対数・発散まで対応する数式パーサーの設計と、スマホ片手でストレスなく数式解答できる専用キーパッドUIの裏側を紹介します。
+                </p>
+                <div class="card-actions">
+                  <a class="btn btn-outline btn-sm" href="/blog/posts/infinite-flash-anzan-math/">記事を読む →</a>
+                </div>
+              </div>
+            </article>
+
+            <article class="card">
+              <div class="card-body">
+                <div class="tag-row">
+                  <span class="tag tag-amber">Cloudflare Pages</span>
+                  <span class="tag tag-neutral">モノレポ</span>
+                </div>
+                <div class="card-meta">公開日: 2026-11-21</div>
+                <h2 class="card-title">
+                  <a href="/blog/posts/cloudflare-pages-monorepo/">
+                    独自ドメイン＋Cloudflare Pages モノレポで複数ブラウザゲームを統合運用する構成
+                  </a>
+                </h2>
+                <p class="card-desc">
+                  GitHub Pages でバラバラに公開していた複数ゲームを、独自ドメイン配下の `/games/xxx/` に統合した理由と、npm workspaces による自動ビルド構成をまとめました。
+                </p>
+                <div class="card-actions">
+                  <a class="btn btn-outline btn-sm" href="/blog/posts/cloudflare-pages-monorepo/">記事を読む →</a>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer-grid">
+          <div>
+            <a class="footer-brand" href="/">
+              <img class="brand-mark" src="/favicon.svg" alt="" width="30" height="30" />
+              <span>Unimate JP</span>
+            </a>
+            <p class="footer-desc">
+              オリジナル無料ブラウザゲーム、個人制作ポートフォリオ、Web技術・開発ブログを発信するサイトです。
+            </p>
+          </div>
+          <div class="footer-col">
+            <h4>コンテンツ</h4>
+            <ul>
+              <li><a href="/games/">ゲームポータル</a></li>
+              <li><a href="/games/mousoutero/">授業中妄想クライシス</a></li>
+              <li><a href="/games/zonbi/">SHELTER MUSOU</a></li>
+              <li><a href="/games/flashanzan/">無限フラッシュ暗算</a></li>
+              <li><a href="/portfolio/">ポートフォリオ</a></li>
+              <li><a href="/blog/">開発ブログ</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>サイト情報</h4>
+            <ul>
+              <li><a href="/about/">運営者情報</a></li>
+              <li><a href="/privacy/">プライバシーポリシー</a></li>
+              <li><a href="/contact/">お問い合わせ</a></li>
+              <li><a href="/sitemap.xml">サイトマップ</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <span>© 2026 Unimate JP (unimate-jp.com). All rights reserved.</span>
+          <span>Powered by Cloudflare Pages</span>
+        </div>
+      </div>
+    </footer>
+
+    <script type="module" src="/src/scripts/main.ts"></script>
+  </body>
+</html>

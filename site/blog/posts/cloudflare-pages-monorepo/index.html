@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>独自ドメイン＋Cloudflare Pages モノレポで複数ブラウザゲームを統合運用する構成 | Unimate JP</title>
+    <meta
+      name="description"
+      content="個別の GitHub Pages で公開していた複数の Vite ブラウザゲームを、独自ドメイン unimate-jp.com の /games/ 配下へモノレポ統合し Cloudflare Pages で運用する設計記録です。"
+    />
+    <link rel="canonical" href="https://unimate-jp.com/blog/posts/cloudflare-pages-monorepo/" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="Unimate JP" />
+    <meta property="og:title" content="独自ドメイン＋Cloudflare Pages モノレポで複数ブラウザゲームを統合運用する構成" />
+    <meta
+      property="og:description"
+      content="npm workspaces と Cloudflare Pages を使って、ポータル・ブログ・複数ゲームを1つのリポジトリから一括デプロイする構成を紹介します。"
+    />
+    <meta property="og:url" content="https://unimate-jp.com/blog/posts/cloudflare-pages-monorepo/" />
+    <meta property="og:image" content="https://unimate-jp.com/og-image.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="/">
+          <img class="brand-mark" src="/favicon.svg" alt="" width="34" height="34" />
+          <span>Unimate JP</span>
+        </a>
+        <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-label="メニューを開く">☰</button>
+        <nav class="nav-links" data-nav-menu aria-label="メインナビゲーション">
+          <a href="/">ホーム</a>
+          <a href="/games/">ゲーム</a>
+          <a href="/portfolio/">ポートフォリオ</a>
+          <a href="/blog/" aria-current="page">ブログ</a>
+          <a href="/about/">運営情報</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="section">
+      <div class="prose-container">
+        <nav class="breadcrumb" aria-label="パンくずリスト">
+          <a href="/">ホーム</a>
+          <span>/</span>
+          <a href="/blog/">ブログ</a>
+          <span>/</span>
+          <span>Cloudflare Pages モノレポ運用構成</span>
+        </nav>
+
+        <article class="article-shell">
+          <div class="tag-row">
+            <span class="tag tag-amber">Cloudflare Pages</span>
+            <span class="tag tag-neutral">Vite</span>
+            <span class="tag tag-neutral">モノレポ</span>
+          </div>
+          <h1>独自ドメイン＋Cloudflare Pages モノレポで複数ブラウザゲームを統合運用する構成</h1>
+          <div class="article-meta">
+            <span>公開日: 2026-11-21</span>
+            <span>カテゴリ: インフラ・サイト運用</span>
+          </div>
+
+          <p>
+            個人でブラウザゲームを複数作っていくと、最初はゲームごとに別々の GitHub リポジトリと GitHub Pages で公開するのが手軽です。
+            しかし作品数が増えて独自ドメインへ移行し、ポートフォリオやブログもまとめて発信したくなると、URL構造や共通ページの管理が課題になってきます。
+          </p>
+
+          <h2>1. なぜ /games/ 配下のモノレポ構成にしたのか</h2>
+          <p>
+            Unimate JP では、次のような階層構造でコンテンツを整理しています。
+          </p>
+          <pre><code>unimate-jp.com/
+├── /                  （総合トップ）
+├── /games/            （ゲームポータル・遊び方ガイド）
+│   ├── mousoutero/
+│   ├── zonbi/
+│   └── flashanzan/
+├── /portfolio/        （制作ポートフォリオ）
+├── /blog/             （個人開発・技術ブログ）
+└── /privacy/, /about/, /contact/</code></pre>
+          <p>
+            この構造にすることで、ゲーム同士の回遊がしやすくなるだけでなく、将来のブログ記事やポートフォリオ作品もすべて 1 つのドメイン資産として積み上げられるメリットがあります。
+          </p>
+
+          <h2>2. npm workspaces で各ゲームの独立性を保ちながら一括ビルド</h2>
+          <p>
+            リポジトリ内は <code>site/</code>（トップ・ポータル・ブログ等）と <code>games/*</code>（個別の Vite ゲームプロジェクト）に分割し、ルートの <code>package.json</code> で npm workspaces を有効化しています。
+          </p>
+          <ul>
+            <li>各ゲームの <code>vite.config.ts</code> は <code>base: './'</code> を維持しているため、サブディレクトリ配下でもアセット参照が壊れない</li>
+            <li>開発時は <code>npm run dev:mousoutero</code> のように単体ゲームだけ軽量に起動できる</li>
+            <li>デプロイ時はルートで <code>npm run build</code> を実行すると、<code>site/</code> と <code>games/*</code> の全ビルド成果物が自動的に <code>dist/</code> と <code>dist/games/&lt;slug&gt;/</code> に統合される</li>
+          </ul>
+
+          <h2>3. Cloudflare Pages を選んだ理由</h2>
+          <p>
+            静的サイトの配信先には Cloudflare Pages を採用しました。GitHub リポジトリと連携しておけば <code>main</code> ブランチへプッシュするだけで自動ビルド＆デプロイが走り、エッジCDNによる高速配信と自動HTTPSが無料枠で利用できます。
+            また、Xserver ドメイン側のネームサーバーを Cloudflare へ向けることで、<code>www</code> なしのルートドメイン（<code>unimate-jp.com</code>）もスムーズに割り当てられるのが大きな利点です。
+          </p>
+
+          <h2>4. 新しいゲームや記事を追加する手順のシンプルさ</h2>
+          <p>
+            新しいゲームを追加したいときは <code>games/&lt;新しいゲーム名&gt;/</code> に Vite プロジェクトを置き、ポータルページに紹介カードを追加するだけで自動ビルド対象になります。
+            ブログ記事も <code>site/blog/posts/&lt;記事スラッグ&gt;/index.html</code> を追加すれば Vite のマルチページ検出によって自動でビルドされるため、制作そのものに集中できる環境が整いました。
+          </p>
+
+          <p><a class="btn btn-outline btn-sm" href="/blog/">← ブログ記事一覧へ戻る</a></p>
+        </article>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer-grid">
+          <div>
+            <a class="footer-brand" href="/">
+              <img class="brand-mark" src="/favicon.svg" alt="" width="30" height="30" />
+              <span>Unimate JP</span>
+            </a>
+            <p class="footer-desc">オリジナル無料ブラウザゲーム、個人制作ポートフォリオ、Web技術・開発ブログを発信するサイトです。</p>
+          </div>
+          <div class="footer-col">
+            <h4>コンテンツ</h4>
+            <ul>
+              <li><a href="/games/">ゲームポータル</a></li>
+              <li><a href="/portfolio/">ポートフォリオ</a></li>
+              <li><a href="/blog/">開発ブログ</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>サイト情報</h4>
+            <ul>
+              <li><a href="/about/">運営者情報</a></li>
+              <li><a href="/privacy/">プライバシーポリシー</a></li>
+              <li><a href="/contact/">お問い合わせ</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <span>© 2026 Unimate JP (unimate-jp.com). All rights reserved.</span>
+          <span>Powered by Cloudflare Pages</span>
+        </div>
+      </div>
+    </footer>
+
+    <script type="module" src="/src/scripts/main.ts"></script>
+  </body>
+</html>

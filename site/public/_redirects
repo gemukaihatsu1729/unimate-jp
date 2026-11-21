@@ -1,0 +1,6 @@
+/mousoutero /games/mousoutero/ 301
+/mousoutero/* /games/mousoutero/:splat 301
+/zonbi /games/zonbi/ 301
+/zonbi/* /games/zonbi/:splat 301
+/flashanzan /games/flashanzan/ 301
+/flashanzan/* /games/flashanzan/:splat 301

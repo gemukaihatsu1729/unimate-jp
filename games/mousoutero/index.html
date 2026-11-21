@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="theme-color" content="#141824" />
+    <meta
+      name="description"
+      content="授業中にテロリストが襲撃！モップ・竹刀・消火器・学習机でクラスメイトを守り抜くスマホ対応ローポリ3D無双アクションゲーム。ブラウザで無料ですぐ遊べます。"
+    />
+    <link rel="canonical" href="https://unimate-jp.com/games/mousoutero/" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Unimate JP — 無料ブラウザゲーム" />
+    <meta property="og:title" content="授業中妄想クライシス 〜黒板の前で俺だけが覚醒した件〜" />
+    <meta
+      property="og:description"
+      content="授業中にテロリストが襲撃！モップ・竹刀・消火器・学習机でクラスメイトを守り抜くスマホ専用ローポリ3D無双アクションゲーム！ブラウザで即遊べる！"
+    />
+    <meta property="og:url" content="https://unimate-jp.com/games/mousoutero/" />
+    <meta property="og:image" content="https://unimate-jp.com/games/mousoutero/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="授業中妄想クライシス 〜黒板の前で俺だけが覚醒した件〜 ブラウザで即遊べる3D無双アクション"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="授業中妄想クライシス 〜黒板の前で俺だけが覚醒した件〜" />
+    <meta
+      name="twitter:description"
+      content="授業中にテロリストが襲撃！モップ・竹刀・消火器・学習机でクラスメイトを守り抜くスマホ専用ローポリ3D無双アクションゲーム！ブラウザで即遊べる！"
+    />
+    <meta name="twitter:image" content="https://unimate-jp.com/games/mousoutero/og-image.png" />
+    <title>授業中妄想クライシス 〜黒板の前で俺だけが覚醒した件〜</title>
+  </head>
+  <body>
+    <div id="app">
+      <!-- Three.js WebGL Canvas -->
+      <canvas id="game-canvas"></canvas>
+
+      <!-- Visual FX Overlay (Red Flash / Slowmo Vignette / Speedlines / Chalk Whiteout) -->
+      <div id="fx-layer" class="fx-layer" aria-hidden="true">
+        <div id="fx-damage" class="fx-damage"></div>
+        <div id="fx-slowmo" class="fx-slowmo"></div>
+        <div id="fx-awakened" class="fx-awakened"></div>
+        <div id="fx-whiteout" class="fx-whiteout"></div>
+      </div>
+
+      <!-- 3D Projected Floating Popups (擬音・ダメージ・SOSマーカー) -->
+      <div id="popups-layer" class="popups-layer" aria-hidden="true"></div>
+
+      <!-- Title Screen -->
+      <section id="title-screen" class="screen-overlay screen-title active">
+        <div class="title-card">
+          <div class="title-badge">2年B組 5時間目・数学II</div>
+          <h1 class="game-title">
+            <span class="title-sub">黒板の前で俺だけが覚醒した件</span>
+            <span class="title-main">授業中妄想クライシス</span>
+          </h1>
+          <p class="title-tagline">
+            テロリスト襲撃！モップ・竹刀・消火器・学習机で<br />
+            クラスメイトを守り抜き、学校最強の伝説になれ！
+          </p>
+
+          <div class="name-input-box">
+            <label for="player-name-input" class="input-label">主人公の名前（妄想ネーム）</label>
+            <input
+              id="player-name-input"
+              type="text"
+              maxlength="10"
+              placeholder="例：タカシ / 俺"
+              autocomplete="off"
+              spellcheck="false"
+            />
+          </div>
+
+          <div class="title-actions">
+            <button id="btn-start-game" class="btn-primary-hero" type="button">
+              <span class="btn-hero-main">🔔 授業を受ける（妄想開始）</span>
+              <span class="btn-hero-sub">スマホタッチ操作専用・3D無双アクション</span>
+            </button>
+            <button id="btn-open-ranking" class="btn-secondary-glass" type="button">
+              🏆 校内妄想ランキングを見る
+            </button>
+          </div>
+
+          <div class="touch-guide-mini">
+            <span>🕹️ 左ドラッグ: 移動</span>
+            <span>👊 右ボタン: 攻撃・備品技・回避・机アクション</span>
+          </div>
+
+          <a class="portal-back-link" href="/games/">← 他のゲームを見る（Unimate JP）</a>
+        </div>
+      </section>
+
+      <!-- Ranking Modal (accessible from Title) -->
+      <section id="ranking-modal" class="screen-overlay screen-modal">
+        <div class="modal-card chalkboard-card">
+          <div class="modal-header">
+            <h2>🏆 校内妄想スコアランキング TOP 100</h2>
+            <button id="btn-close-ranking" class="btn-icon-close" type="button" aria-label="閉じる">✕</button>
+          </div>
+          <div id="modal-ranking-list" class="ranking-list"></div>
+          <div class="modal-footer">
+            <button id="btn-close-ranking-bottom" class="btn-secondary-glass" type="button">戻る</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Manga Cut-in Overlay -->
+      <div id="cutin-overlay" class="cutin-overlay" aria-hidden="true">
+        <div class="cutin-band">
+          <div id="cutin-kicker" class="cutin-kicker">EMERGENCY DELUSION</div>
+          <div id="cutin-title" class="cutin-title">【妄想発動】校舎占拠テロ発生！</div>
+          <div id="cutin-sub" class="cutin-sub">俺がやるしかない…！</div>
+        </div>
+      </div>
+
+      <!-- Story / Intro / Reality Ochi Dialogue Overlay -->
+      <div id="dialogue-overlay" class="dialogue-overlay">
+        <div class="dialogue-box">
+          <div id="dialogue-speaker" class="dialogue-speaker">鬼塚先生</div>
+          <div id="dialogue-text" class="dialogue-text">……というわけで、この二次方程式の解は……</div>
+          <button id="btn-skip-intro" class="btn-skip-small" type="button">スキップ ⏭</button>
+        </div>
+      </div>
+
+      <!-- In-Game HUD + Mobile Touch Controls -->
+      <div id="hud-root" class="hud-root">
+        <!-- Top Status Bar -->
+        <header class="hud-top">
+          <div class="hud-top-left">
+            <div class="hp-panel">
+              <div class="hp-row">
+                <span id="hud-player-name" class="hud-name">俺</span>
+                <span id="hud-hp-text" class="hud-hp-text">150 / 150</span>
+              </div>
+              <div class="bar-track hp-track">
+                <div id="hud-hp-fill" class="bar-fill hp-fill"></div>
+              </div>
+              <div class="bar-track delusion-track">
+                <div id="hud-delusion-fill" class="bar-fill delusion-fill"></div>
+                <span id="hud-delusion-label" class="delusion-label">妄想覚醒 0%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="hud-top-center">
+            <div class="wave-pill">
+              <span id="hud-wave-badge" class="wave-badge">WAVE 1</span>
+              <span id="hud-wave-title" class="wave-title">教室突入</span>
+            </div>
+            <div class="stats-strip">
+              <span class="stat-chip survivor-chip" id="hud-survivor-chip">👥 生存 <strong id="hud-survivors">6/6</strong></span>
+              <span class="stat-chip kill-chip">💥 撃破 <strong id="hud-kills">0</strong></span>
+              <span class="stat-chip score-chip">★ <strong id="hud-score">0</strong></span>
+            </div>
+          </div>
+
+          <div class="hud-top-right">
+            <button id="btn-toggle-mute" class="hud-mini-btn" type="button" aria-label="サウンド切替">🔊</button>
+          </div>
+        </header>
+
+        <!-- Boss HP Bar (Wave 3) -->
+        <div id="boss-bar-wrap" class="boss-bar-wrap">
+          <div class="boss-bar-header">
+            <span id="boss-name-label" class="boss-name">💀 首領 ブラック・ファントム</span>
+          </div>
+          <div class="boss-bar-track">
+            <div id="boss-hp-fill" class="boss-hp-fill"></div>
+          </div>
+        </div>
+
+        <!-- Combo Badge & Live Classmate Feed -->
+        <div id="combo-wrap" class="combo-wrap">
+          <div id="combo-count" class="combo-count">12</div>
+          <div class="combo-label">HIT COMBO!</div>
+          <div class="combo-timer-track">
+            <div id="combo-timer-fill" class="combo-timer-fill"></div>
+          </div>
+        </div>
+
+        <div id="chatter-feed" class="chatter-feed" aria-live="polite"></div>
+
+        <!-- Equipped Weapon Pill -->
+        <div class="weapon-badge" id="hud-weapon-badge">
+          <span id="hud-weapon-icon" class="weapon-icon">👊</span>
+          <div class="weapon-meta">
+            <span id="hud-weapon-name" class="weapon-name">素手（気合）</span>
+            <span id="hud-weapon-durability" class="weapon-durability">∞ 無限</span>
+          </div>
+        </div>
+
+        <!-- Camera Swipe Zone (Upper/Center Background) -->
+        <div id="camera-swipe-zone" class="camera-swipe-zone"></div>
+
+        <!-- Mobile Touch Controls Layer -->
+        <div id="touch-controls" class="touch-controls">
+          <!-- Left Virtual Joystick Zone -->
+          <div id="joystick-zone" class="joystick-zone">
+            <div id="joystick-base" class="joystick-base">
+              <div id="joystick-knob" class="joystick-knob"></div>
+            </div>
+            <div class="joystick-hint">MOVE</div>
+          </div>
+
+          <!-- Right Action Buttons Cluster -->
+          <div class="action-cluster">
+            <!-- Awakening Limit Break Button (appears when 100%) -->
+            <button id="btn-awaken" class="touch-btn btn-awaken" type="button">
+              <span class="btn-emoji">⚡</span>
+              <span class="btn-text">妄想覚醒</span>
+            </button>
+
+            <!-- Dynamic Context Action Button (Pick up / Desk Barricade / Desk Kick / Rescue) -->
+            <button id="btn-context" class="touch-btn btn-context" type="button">
+              <span id="btn-context-label" class="btn-text">机アクション</span>
+              <span id="btn-context-sub" class="btn-sub">タップ</span>
+            </button>
+
+            <!-- Dodge Roll Button -->
+            <button id="btn-dodge" class="touch-btn btn-dodge" type="button">
+              <span class="btn-emoji">💨</span>
+              <span class="btn-text">回避</span>
+              <div id="cd-dodge" class="btn-cd-overlay"></div>
+            </button>
+
+            <!-- Weapon Special Button -->
+            <button id="btn-special" class="touch-btn btn-special" type="button">
+              <span id="btn-special-icon" class="btn-emoji">🔥</span>
+              <span id="btn-special-label" class="btn-text">タックル</span>
+              <div id="cd-special" class="btn-cd-overlay"></div>
+            </button>
+
+            <!-- Main Attack Button (Largest) -->
+            <button id="btn-attack" class="touch-btn btn-attack" type="button">
+              <span class="btn-emoji">👊</span>
+              <span class="btn-text">攻撃</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Result + Ranking Screen -->
+      <section id="result-screen" class="screen-overlay screen-result">
+        <div class="result-card chalkboard-card">
+          <div class="result-top-row">
+            <div>
+              <div id="result-kicker" class="result-kicker">現実復帰レポート</div>
+              <h2 id="result-headline" class="result-headline">妄想制圧完了！</h2>
+            </div>
+            <div id="result-rank-stamp" class="rank-stamp rank-S">S</div>
+          </div>
+
+          <p id="result-teacher-quote" class="teacher-quote">
+            「おい俺！また授業中に机蹴り倒して何叫んでるんだ！廊下に立ってろ！」
+          </p>
+
+          <div class="score-summary-grid">
+            <div class="score-main-box">
+              <span class="score-main-label">総合妄想スコア</span>
+              <span id="result-total-score" class="score-main-value">14,500</span>
+              <span id="result-new-rank-badge" class="new-rank-badge">🏆 ランキング 1位 獲得！</span>
+            </div>
+            <div class="score-breakdown" id="result-breakdown"></div>
+          </div>
+
+          <div class="share-section">
+            <div class="share-buttons-row">
+              <button id="btn-share-x" class="btn-share btn-share-x" type="button">𝕏 シェア</button>
+              <button id="btn-share-line" class="btn-share btn-share-line" type="button">LINE</button>
+              <button id="btn-share-native" class="btn-share btn-share-copy" type="button">📤 共有/コピー</button>
+            </div>
+            <div id="share-feedback" class="share-feedback" aria-live="polite"></div>
+          </div>
+
+          <div class="result-ranking-section">
+            <h3 class="ranking-subhead">🏆 校内妄想スコアランキング TOP 100</h3>
+            <div id="result-ranking-list" class="ranking-list compact"></div>
+          </div>
+
+          <div class="result-actions">
+            <button id="btn-retry" class="btn-primary-hero small" type="button">🔥 もう一度妄想する</button>
+            <button id="btn-back-title" class="btn-secondary-glass" type="button">タイトルへ</button>
+          </div>
+          <a class="portal-back-link" href="/games/">← ゲームポータルへ戻る（Unimate JP）</a>
+        </div>
+      </section>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
