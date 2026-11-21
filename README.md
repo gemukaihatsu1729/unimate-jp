@@ -75,7 +75,7 @@ npm run preview
 
 ### 審査申請前〜合格後の手順
 1. **審査前の確認**:
-   - `site/contact/index.html` のメールアドレス（現在 `contact@unimate-jp.com`）を、実際に受信できるメールアドレスまたは Google フォーム URL へ差し替える。
+   - `site/contact/index.html` のメールアドレス（`gemu05319@gmail.com`）で受信できることを確認する。
    - Google Search Console に `https://unimate-jp.com/` を登録し、サイトマップ `https://unimate-jp.com/sitemap.xml` を送信する。
 2. **AdSense 審査コードの有効化（審査申請時）**:
    - Cloudflare ダッシュボード → **Workers & Pages** → `unimate-jp` → **設定 → ビルド → ビルド変数とシークレット** に `ADSENSE_CLIENT_ID=ca-pub-xxxxxxxxxxxxxxxx` を追加して再デプロイすると、全HTMLの `<head>` へ AdSense タグが挿入され、`https://unimate-jp.com/ads.txt` も自動生成されます。
