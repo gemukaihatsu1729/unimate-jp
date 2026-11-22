@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#18223a" />
+  <meta
+    name="description"
+    content="指1本のスライド操作でバイクを自在に操り、パトカー・機動隊・警察ヘリの包囲網をドリフトとジャンプで振り切るスマホ対応ローポリ3Dバイク逃走ゲーム。ブラウザで無料ですぐ遊べます。"
+  />
+  <link rel="canonical" href="https://unimate-jp.com/games/bikechase/" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Unimate JP — 無料ブラウザゲーム" />
+  <meta property="og:title" content="METRO ESCAPE — ローポリ3Dバイク逃走チェイス" />
+  <meta
+    property="og:description"
+    content="指1本スライドで街を爆走！ドリフト自動ターボ＆路地裏抜けで警察の包囲網を突破するスマホ向けローポリ3Dバイクチェイスゲーム！"
+  />
+  <meta property="og:url" content="https://unimate-jp.com/games/bikechase/" />
+  <meta property="og:image" content="https://unimate-jp.com/games/bikechase/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="METRO ESCAPE — ローポリ3Dバイク逃走チェイス" />
+  <meta
+    name="twitter:description"
+    content="指1本スライドで街を爆走！ドリフト自動ターボ＆路地裏抜けで警察の包囲網を突破するスマホ向けローポリ3Dバイクチェイスゲーム！"
+  />
+  <meta name="twitter:image" content="https://unimate-jp.com/games/bikechase/og-image.png" />
+  <title>METRO ESCAPE — ローポリ3Dバイク逃走チェイス</title>
+  <script defer src="/common/js/result-ad.js"></script>
+</head>
+<body>
+  <div id="app" class="app-root">
+    <!-- Live 3D City & Chase WebGL Canvas -->
+    <canvas id="game-canvas"></canvas>
+
+    <!-- Screen FX Overlays -->
+    <div id="hit-flash" class="hit-flash"></div>
+    <div id="nitro-vignette" class="nitro-vignette"></div>
+    <div id="fx-popups" class="fx-popups"></div>
+
+    <!-- =========================================================
+         1. TITLE & BIKE GARAGE SCREEN
+         ========================================================= -->
+    <section id="screen-title" class="screen screen-title active" aria-label="マシン選択画面">
+      <header class="title-header">
+        <div class="title-left">
+          <div class="eyebrow">ENDLESS PROCEDURAL 3D CITY</div>
+          <h1 class="game-title">METRO <span>ESCAPE</span></h1>
+        </div>
+        <div class="title-right-col">
+          <div class="record-box">
+            <span class="rec-k">BEST TIME</span>
+            <span class="rec-v" id="best-time-text">-</span>
+          </div>
+          <button id="btn-shuffle-city" class="seed-shuffle-btn" type="button">
+            🎲 別の街 <span id="city-seed-text">#000000</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Live 3D Showcase Window -->
+      <div class="stage-spacer" aria-hidden="true">
+        <div class="stage-chip" id="stage-bike-chip">🏍️ レッドバイパー 選択中</div>
+      </div>
+
+      <!-- Compact Bottom Garage Dock -->
+      <div class="garage-dock">
+        <div class="dock-head">
+          <span>愛車セレクト</span>
+          <strong id="sel-bike-tagline">バランス型スーパーバイク</strong>
+        </div>
+
+        <div class="bike-grid" id="grid-bikes"></div>
+
+        <div class="bike-brief" id="bike-brief">
+          扱いやすい旋回性能と力強い加速を両立。街角の連続ドリフト＆路地裏抜けが得意な王道マシン。
+        </div>
+
+        <button id="btn-start-game" class="btn-cta" type="button">
+          <span class="cta-main">🏍️ 逃走スタート</span>
+          <span class="cta-sub">無限生成の街を、指1本スライドで駆け抜けろ！</span>
+        </button>
+
+        <a class="portal-back-link" href="/games/">← 他のゲームを見る（Unimate JP）</a>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         2. GAMEPLAY HUD & ONE-FINGER SLIDE LAYER
+         ========================================================= -->
+    <section id="screen-game" class="screen screen-game" aria-label="逃走チェイス画面">
+      <!-- Fullscreen 1-Finger Slide Touch Layer -->
+      <div id="slide-zone" class="slide-zone">
+        <div id="slide-indicator" class="slide-indicator" aria-hidden="true">
+          <div id="slide-ring" class="slide-ring"></div>
+          <div id="slide-arrow" class="slide-arrow"></div>
+          <div id="slide-knob" class="slide-knob"></div>
+        </div>
+      </div>
+
+      <!-- Top HUD Bar -->
+      <header class="hud-top">
+        <div class="hud-left-col">
+          <div class="hud-stats-row">
+            <div class="hud-pill wanted-pill" id="hud-wanted-pill">
+              <span class="stars" id="hud-stars">★☆☆☆☆</span>
+            </div>
+            <div class="hud-pill time-pill">
+              <span class="hk">TIME</span>
+              <span class="hv" id="hud-time">0:00.0</span>
+            </div>
+          </div>
+
+          <div class="hud-sub-row">
+            <div class="hp-strip" id="hud-hp-row" aria-label="マシン耐久"></div>
+            <div class="hud-pill speed-pill">
+              <span id="hud-speed">0</span>
+              <small>km/h</small>
+              <span class="state-badge hidden" id="hud-state-badge">DRIFT</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hud-right-col">
+          <div class="hud-icons">
+            <button id="btn-mute" class="icon-btn" type="button" aria-label="音声切替">🔊</button>
+            <button id="btn-pause" class="icon-btn" type="button" aria-label="一時停止">⏸</button>
+          </div>
+          <div class="minimap-frame">
+            <canvas id="minimap-canvas"></canvas>
+          </div>
+        </div>
+      </header>
+
+      <!-- First-Play Control Hint -->
+      <div class="slide-hint hidden" id="slide-hint">👆 指1本でなぞって操作！急旋回で自動ターボ</div>
+
+      <!-- Wanted Level Escalation Banner -->
+      <div class="wanted-banner hidden" id="wanted-banner">
+        <div class="wb-stars" id="wb-stars">★★☆☆☆</div>
+        <div class="wb-title" id="wb-title">手配度上昇！</div>
+        <div class="wb-desc" id="wb-desc">高速インターセプター投入！</div>
+      </div>
+
+      <!-- Police Wreck Combo Pill -->
+      <div class="combo-box hidden" id="combo-box">
+        <div class="combo-num" id="combo-num">×2</div>
+        <div class="combo-label">WRECK COMBO</div>
+      </div>
+
+      <!-- Busted Warning Gauge (appears when pinned or stalled near police) -->
+      <div class="busted-wrap hidden" id="busted-wrap">
+        <div class="busted-label">🚨 確保警告!! 止まると逮捕される！</div>
+        <div class="busted-track">
+          <div class="busted-fill" id="busted-fill"></div>
+        </div>
+      </div>
+
+      <!-- Bottom-Center Overdrive Nitro Pill -->
+      <div class="bottom-controls">
+        <button id="btn-nitro" class="nitro-btn" type="button">
+          <div class="nitro-fill" id="nitro-fill-bar"></div>
+          <span class="nitro-icon">⚡</span>
+          <span class="nitro-text" id="nitro-btn-text">NITRO 0%</span>
+        </button>
+      </div>
+
+      <!-- Pause Modal -->
+      <div class="modal-backdrop hidden" id="modal-pause">
+        <div class="modal-card">
+          <div class="m-eyebrow">PAUSED</div>
+          <h3 class="m-title">逃走を一時停止</h3>
+          <div class="stat-strip" id="pause-stats"></div>
+          <div class="m-actions">
+            <button id="btn-resume" class="m-btn primary" type="button">逃走を再開</button>
+            <button id="btn-pause-retry" class="m-btn secondary" type="button">最初からやり直す</button>
+            <button id="btn-pause-title" class="m-btn ghost" type="button">ガレージに戻る</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Game Over Modal -->
+      <div class="modal-backdrop hidden" id="modal-gameover">
+        <div class="modal-card">
+          <div class="result-ad" data-result-ad="bikechase" hidden></div>
+
+          <div class="gameover-top-row">
+            <div>
+              <div class="m-eyebrow danger" id="gameover-reason">BUSTED</div>
+              <h3 class="m-title" id="gameover-title">包囲網に確保された…</h3>
+            </div>
+            <div class="rank-stamp rank-C" id="res-rank-stamp">C</div>
+          </div>
+
+          <div class="record-pill hidden" id="new-record-pill">🏆 NEW RECORD!</div>
+          <div class="hq-quote" id="res-comment"></div>
+
+          <div class="res-grid">
+            <div class="res-cell"><span class="rk">逃走タイム</span><span class="rv" id="res-time">0:00.0</span></div>
+            <div class="res-cell"><span class="rk">最大手配</span><span class="rv" id="res-stars">★1</span></div>
+            <div class="res-cell"><span class="rk">パトカー撃破</span><span class="rv" id="res-wrecks">0台</span></div>
+            <div class="res-cell"><span class="rk">ニアミス</span><span class="rv" id="res-nearmiss">0回</span></div>
+          </div>
+
+          <div class="res-bike-tag" id="res-bike-tag"></div>
+
+          <div class="share-section">
+            <div class="share-buttons-row">
+              <button id="btn-share-x" class="btn-share btn-share-x" type="button">𝕏 シェア</button>
+              <button id="btn-share-line" class="btn-share btn-share-line" type="button">LINE</button>
+              <button id="btn-share-native" class="btn-share btn-share-copy" type="button">📤 共有/コピー</button>
+            </div>
+            <div id="share-feedback" class="share-feedback" aria-live="polite"></div>
+          </div>
+
+          <div class="m-actions">
+            <button id="btn-retry-same" class="m-btn primary" type="button">同じマシンで再逃走</button>
+            <button id="btn-back-title" class="m-btn secondary" type="button">マシンを変更する</button>
+          </div>
+          <a class="portal-back-link" href="/games/">← ゲームポータルへ戻る（Unimate JP）</a>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

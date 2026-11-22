@@ -48,11 +48,23 @@ body {
 }
 
 .app-root {
-  position: relative;
+  position: fixed;
+  inset: 0;
   width: 100%;
   height: 100%;
-  height: 100dvh;
   overflow: hidden;
+  touch-action: none;
+}
+
+/* Failsafe: if the page somehow enters a zoomed viewport state externally,
+   temporarily allow pinch-in / pan so the player is never trapped off-screen. */
+html.is-browser-zoomed,
+html.is-browser-zoomed body,
+html.is-browser-zoomed .app-root,
+html.is-browser-zoomed .screen,
+html.is-browser-zoomed #game-canvas,
+html.is-browser-zoomed .camera-swipe-zone {
+  touch-action: pinch-zoom pan-x pan-y;
 }
 
 #game-canvas {
@@ -122,6 +134,7 @@ body {
   display: none;
   flex-direction: column;
   pointer-events: none;
+  touch-action: none;
   z-index: 12;
 }
 
@@ -267,7 +280,7 @@ body {
   border: 1.5px solid rgba(255, 255, 255, 0.12);
   color: var(--text);
   cursor: pointer;
-  touch-action: manipulation;
+  touch-action: none;
   transition: transform 0.1s ease, border-color 0.15s ease, background 0.15s ease;
 }
 
@@ -343,7 +356,7 @@ body {
   justify-content: center;
   gap: 1px;
   cursor: pointer;
-  touch-action: manipulation;
+  touch-action: none;
   box-shadow: 0 8px 26px rgba(249, 115, 22, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.45);
 }
 
@@ -430,7 +443,7 @@ body {
   color: #fff;
   font-size: 13px;
   cursor: pointer;
-  touch-action: manipulation;
+  touch-action: none;
 }
 
 .icon-btn:active {
@@ -647,7 +660,7 @@ body {
   font-size: 11px;
   font-weight: 900;
   cursor: pointer;
-  touch-action: manipulation;
+  touch-action: none;
 }
 
 /* =========================================================
@@ -676,7 +689,7 @@ body {
   font-size: 11.5px;
   font-weight: 900;
   cursor: pointer;
-  touch-action: manipulation;
+  touch-action: none;
   box-shadow: 0 5px 16px rgba(0, 0, 0, 0.5);
 }
 
@@ -916,6 +929,7 @@ body {
   color: #fff;
   font-weight: 900;
   cursor: pointer;
+  touch-action: none;
 }
 
 .pad-grid {
@@ -935,7 +949,7 @@ body {
   color: #fff;
   text-align: left;
   cursor: pointer;
-  touch-action: manipulation;
+  touch-action: none;
 }
 
 .pad-btn.primary {
@@ -1048,7 +1062,7 @@ body {
   color: #fff;
   text-align: left;
   cursor: pointer;
-  touch-action: manipulation;
+  touch-action: none;
 }
 
 .perk-card:active {
@@ -1178,7 +1192,7 @@ body {
   color: #fff;
   cursor: pointer;
   white-space: nowrap;
-  touch-action: manipulation;
+  touch-action: pan-y;
   transition: transform 0.08s ease, filter 0.1s ease;
 }
 
@@ -1225,7 +1239,7 @@ body {
   font-size: 14px;
   font-weight: 900;
   cursor: pointer;
-  touch-action: manipulation;
+  touch-action: none;
 }
 
 .m-btn.primary {
@@ -1263,6 +1277,7 @@ body {
   font-size: 12px;
   font-weight: 700;
   text-decoration: none;
+  touch-action: none;
   transition: background 0.16s ease, color 0.16s ease, border-color 0.16s ease;
 }
 
@@ -1280,11 +1295,19 @@ body {
   overflow-y: auto;
   align-items: flex-start;
   touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
 }
 
 #modal-gameover .modal-card {
   margin: auto;
   max-width: 376px;
+  touch-action: pan-y;
+}
+
+#modal-gameover .btn-share,
+#modal-gameover .m-btn,
+#modal-gameover .portal-back-link {
+  touch-action: pan-y;
 }
 
 .result-ad[hidden] {

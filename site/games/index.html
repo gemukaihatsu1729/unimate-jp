@@ -6,7 +6,7 @@
     <title>ゲームポータル — 無料ブラウザゲーム一覧・攻略ガイド | Unimate JP</title>
     <meta
       name="description"
-      content="Unimate JP の無料ブラウザゲームポータル。授業中妄想クライシス、SHELTER MUSOU、無限フラッシュ暗算の武器・タレット・極限図鑑データや攻略ガイドを詳しく掲載しています。"
+      content="Unimate JP の無料ブラウザゲームポータル。METRO ESCAPE（3Dバイク逃走）、授業中妄想クライシス、SHELTER MUSOU、無限フラッシュ暗算の攻略データや詳細ガイドを掲載しています。"
     />
     <link rel="canonical" href="https://unimate-jp.com/games/" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -62,12 +62,38 @@
       <section class="section">
         <div class="container">
           <div class="filter-bar" role="group" aria-label="ジャンル絞り込み">
-            <button class="filter-btn is-active" type="button" data-filter="all">すべて (3)</button>
-            <button class="filter-btn" type="button" data-filter="action">3Dアクション・無双 (2)</button>
+            <button class="filter-btn is-active" type="button" data-filter="all">すべて (4)</button>
+            <button class="filter-btn" type="button" data-filter="action">3Dアクション・チェイス (3)</button>
             <button class="filter-btn" type="button" data-filter="math">数学・脳トレ (1)</button>
           </div>
 
-          <div class="grid-3">
+          <div class="grid-2">
+            <article class="card" data-category="action">
+              <a class="game-thumb" href="/games/bikechase/">
+                <img
+                  src="/games/bikechase/og-image.png"
+                  alt="METRO ESCAPE — ローポリ3Dバイク逃走チェイス"
+                  width="1200"
+                  height="630"
+                />
+              </a>
+              <div class="card-body">
+                <div class="tag-row">
+                  <span class="tag tag-amber">NEW</span>
+                  <span class="tag">3Dバイク逃走</span>
+                  <span class="tag tag-neutral">タイムサバイバル</span>
+                </div>
+                <h2 class="card-title"><a href="/games/bikechase/">METRO ESCAPE</a></h2>
+                <p class="card-desc">
+                  シード値で無限に自動生成されるローポリ3D都市を、指1本のスライド操作で駆け抜けるバイク逃走ゲーム。耐久回復なし、パトカー・白バイ・全面検問・警察ヘリから何秒逃げ切れるか挑戦しよう。
+                </p>
+                <div class="card-actions">
+                  <a class="btn btn-primary btn-sm" href="/games/bikechase/">プレイする →</a>
+                  <a class="btn btn-outline btn-sm" href="#guide-bikechase">攻略データ</a>
+                </div>
+              </div>
+            </article>
+
             <article class="card" data-category="action">
               <a class="game-thumb" href="/games/mousoutero/">
                 <img
@@ -512,6 +538,136 @@
                 <a class="btn btn-outline btn-sm" href="/blog/posts/math-expression-parser-vitest/">数式パーサー解説</a>
               </div>
             </article>
+
+            <!-- 4. METRO ESCAPE -->
+            <article id="guide-bikechase" class="guide-card">
+              <div class="tag-row">
+                <span class="tag tag-amber">3Dバイク逃走</span>
+                <span class="tag tag-neutral">指1本スライド操作</span>
+                <span class="tag tag-neutral">無限自動生成シティ</span>
+                <span class="tag tag-neutral">回復なしタイムサバイバル</span>
+              </div>
+              <h3>4. METRO ESCAPE — ローポリ3Dバイク逃走チェイス</h3>
+              <p>
+                指1本の横スライド操作でオート走行するバイクを操り、シード値で無限に生成され続ける3D都市の中を警察の包囲網から逃げ続けるタイムサバイバルゲームです。
+                耐久回復アイテムやスコア稼ぎは一切なく、純粋な「逃走タイム」のみで伝説のライダーランクを目指します。
+              </p>
+
+              <div class="guide-cols">
+                <div class="guide-box">
+                  <h4>基本操作とサバイバルルール</h4>
+                  <ul>
+                    <li><strong>指1本スライド（PCは A/D・←/→）：</strong>バイクは自動で前進し、スライド量に応じて鋭くコーナリング。大きく切り込むとドリフト状態に入り、戻すと自動でミニターボが発動します。</li>
+                    <li><strong>⚡ ニトロ（Space / Shift）：</strong>初期チャージ 0%、60% 以上で発動（1.65秒間 1.38倍加速）。路地・公園・広場のニトロ缶やドリフト・ニアミスでチャージされます。</li>
+                    <li><strong>耐久回復なし＆逃走タイム一本勝負：</strong>マシン損傷の回復手段はありません。障害物・警察車両への正面衝突を避けて限界タイムに挑みましょう。</li>
+                    <li><strong>無限自動生成シティ：</strong>タイトル画面の「🎲 街を再生成」から、遊ぶたびにレイアウトが変わる新しい街シードを生成できます。</li>
+                  </ul>
+                </div>
+                <div class="guide-box">
+                  <h4>手配度（★1〜★5）と逃走ランク基準</h4>
+                  <ul>
+                    <li><strong>★1（0s〜 初動追跡）：</strong>パトカー＆白バイが緊急出動（最大3台）。</li>
+                    <li><strong>★2（15s〜 包囲網＆検問）：</strong>高速インターセプター登場＆全面封鎖検問を展開（最大5台）。</li>
+                    <li><strong>★3（35s〜 機動隊突入）：</strong>重装甲の機動隊SUV投入（最大6台）。</li>
+                    <li><strong>★4（60s〜 空陸立体追跡）：</strong>警察ヘリが上空からサーチライト照射（最大7台）。</li>
+                    <li><strong>★5（95s〜 都市完全封鎖）：</strong>全警察部隊による総力包囲網（最大9台）。</li>
+                    <li><strong>ランク基準：</strong>SS（2:00.0〜）／ S（1:15.0〜）／ A（0:45.0〜）／ B（0:22.0〜）／ C（〜0:21.9）</li>
+                  </ul>
+                </div>
+              </div>
+
+              <h4 class="guide-subhead">選択できるバイク 3種スペック</h4>
+              <div class="data-table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>バイク名</th>
+                      <th class="num">最高速度</th>
+                      <th class="num">旋回性能</th>
+                      <th class="num">耐久HP</th>
+                      <th>特徴・おすすめの走り方</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>🔴 レッドバイパー</strong></td>
+                      <td class="num">29.5</td>
+                      <td class="num">3.45</td>
+                      <td class="num">3</td>
+                      <td>扱いやすい旋回と力強い加速を両立。街角の連続ドリフト＆路地裏抜けで包囲網を切り裂く王道モデル。</td>
+                    </tr>
+                    <tr>
+                      <td><strong>🔵 サイバーボルト</strong></td>
+                      <td class="num">32.5</td>
+                      <td class="num">3.75</td>
+                      <td class="num">3</td>
+                      <td>全車トップの最高速＆鋭いドリフト性能。連続ドリフトでニトロを溜めたいスピード特化ライダー向け。</td>
+                    </tr>
+                    <tr>
+                      <td><strong>🟠 アイアンレンジャー</strong></td>
+                      <td class="num">27.8</td>
+                      <td class="num">3.25</td>
+                      <td class="num">4</td>
+                      <td>HP4の頑丈なフレームと高いオフロードグリップを持ち、公園の芝生やジャンプ台でも失速しにくい安定機。</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <h4 class="guide-subhead">追跡警察ユニット 4種（＋警察ヘリ）</h4>
+              <div class="data-table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>ユニット名</th>
+                      <th class="num">最高速度</th>
+                      <th class="num">判定半径</th>
+                      <th>登場条件</th>
+                      <th>特徴・対処法</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>🚓 パトカー</strong></td>
+                      <td class="num">27.5</td>
+                      <td class="num">1.16</td>
+                      <td>★1〜</td>
+                      <td>基本追跡ユニット。進路の前方に先回りして交差点を塞ごうとします。</td>
+                    </tr>
+                    <tr>
+                      <td><strong>🏍️ 白バイ</strong></td>
+                      <td class="num">31.2</td>
+                      <td class="num">0.68</td>
+                      <td>★1〜</td>
+                      <td>高加速・小回り抜群のスリム機体。細い路地裏まで執拗に追ってくるため鋭い切り返しが必須です。</td>
+                    </tr>
+                    <tr>
+                      <td><strong>⚡ インターセプター</strong></td>
+                      <td class="num">33.5</td>
+                      <td class="num">1.12</td>
+                      <td>★2〜</td>
+                      <td>最速の追撃車両。大通りの直線勝負では振り切れず、横からの急な曲がりでかわす必要があります。</td>
+                    </tr>
+                    <tr>
+                      <td><strong>🛡️ 機動隊SUV</strong></td>
+                      <td class="num">26.2</td>
+                      <td class="num">1.34</td>
+                      <td>★3〜</td>
+                      <td>重装甲SUV。接触時の吹き飛ばしが強く、検問や包囲網の壁として立ち塞がります。</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="callout">
+                <strong>SSランク（2分超え）攻略のコツ：</strong> 大通りをまっすぐ走り続けると全面封鎖検問と先回り部隊に確実に挟まれます。
+                ミニマップの赤い封鎖ラインを見て手前の交差点や路地へ早めに曲がり、さらに狭い通路や壁際で足が止まると包囲確保（BUSTED）ゲージが一気に溜まるため、常にスピードを保って走り抜けるのが生還の鍵です。
+              </div>
+
+              <div class="card-actions">
+                <a class="btn btn-primary btn-sm" href="/games/bikechase/">METRO ESCAPE を遊ぶ →</a>
+              </div>
+            </article>
           </div>
         </div>
       </section>
@@ -536,6 +692,7 @@
               <li><a href="/games/mousoutero/">授業中妄想クライシス</a></li>
               <li><a href="/games/zonbi/">SHELTER MUSOU</a></li>
               <li><a href="/games/flashanzan/">無限フラッシュ暗算</a></li>
+              <li><a href="/games/bikechase/">METRO ESCAPE</a></li>
               <li><a href="/portfolio/">ポートフォリオ</a></li>
               <li><a href="/blog/">開発ブログ</a></li>
             </ul>

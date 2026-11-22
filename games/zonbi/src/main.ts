@@ -1,5 +1,8 @@
 import './style.css';
 import { Game } from './game/Game';
+import { installViewportGuard } from './game/ViewportGuard';
+
+installViewportGuard();
 
 window.addEventListener('DOMContentLoaded', () => {
   const canvas = document.getElementById('game-canvas') as HTMLCanvasElement | null;

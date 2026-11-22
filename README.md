@@ -10,7 +10,8 @@ https://unimate-jp.com/
 ├── /games/                   ゲームポータル（一覧・詳細データ表・攻略ガイド）
 │   ├── mousoutero/           授業中妄想クライシス
 │   ├── zonbi/                SHELTER MUSOU — 3Dゾンビ無双防衛
-│   └── flashanzan/           無限フラッシュ暗算
+│   ├── flashanzan/           無限フラッシュ暗算
+│   └── bikechase/            METRO ESCAPE — ローポリ3Dバイク逃走チェイス
 ├── /portfolio/               制作ポートフォリオ（ケーススタディ・技術構成）
 ├── /blog/                    個人開発・技術ブログ（全8記事＋カテゴリ絞り込み）
 ├── /about/                   運営者情報
@@ -35,6 +36,7 @@ npm run dev:site
 npm run dev:mousoutero
 npm run dev:zonbi
 npm run dev:flashanzan
+npm run dev:bikechase
 
 # 全ゲームのユニットテスト実行
 npm test
@@ -64,7 +66,7 @@ npm run preview
 
 ## Google AdSense の導入・安全設計
 
-### 既存3ゲームのリザルト画面広告（`/common/js/result-ad.js`）
+### 全4ゲームのリザルト画面広告（`/common/js/result-ad.js`）
 プレイヤーの誤タップとポリシー違反を防ぐため、全ゲームに共通スクリプトで以下の安全仕様を組み込んでいます：
 
 - **プレイ中の広告ゼロ**: 仮想スティックやテンキーが出るプレイ画面には一切配置せず、リザルト／ゲームオーバー画面の最上部のみに配置。

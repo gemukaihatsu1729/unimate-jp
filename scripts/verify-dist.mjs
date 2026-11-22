@@ -74,7 +74,8 @@ function verifyGameResultAds() {
   const games = [
     { slug: 'mousoutero', firstButtonId: 'btn-share-x' },
     { slug: 'zonbi', firstButtonId: 'btn-share-x' },
-    { slug: 'flashanzan', firstButtonId: 'btn-share-x' }
+    { slug: 'flashanzan', firstButtonId: 'btn-share-x' },
+    { slug: 'bikechase', firstButtonId: 'btn-share-x' }
   ];
 
   for (const { slug, firstButtonId } of games) {
@@ -98,7 +99,7 @@ function verifyGameResultAds() {
       `games/${slug}/index.html: ${adAttr} must appear before first action button #${firstButtonId}`
     );
   }
-  console.log('✓ Verified result-ad.js integration and DOM placement across all 3 games');
+  console.log(`✓ Verified result-ad.js integration and DOM placement across all ${games.length} games`);
 }
 
 function verifyResultAdScriptConfig() {

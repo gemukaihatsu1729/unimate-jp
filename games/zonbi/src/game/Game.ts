@@ -234,16 +234,18 @@ export class Game {
       antialias: true,
       powerPreference: 'high-performance'
     });
+    const initSize = this.getViewportSize();
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.setSize(initSize.width, initSize.height, false);
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.08;
 
     this.scene = new THREE.Scene();
-    this.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 110);
+    this.camera = new THREE.PerspectiveCamera(60, initSize.width / initSize.height, 0.1, 110);
     this.camCtrl = new CameraController(this.camera);
+    this.camCtrl.updateResponsiveFov(initSize.width, initSize.height);
 
     this.world = new BattlefieldWorld(this.scene);
     this.fx = new EffectsManager(this.scene, 240);
@@ -255,9 +257,23 @@ export class Game {
     this.bindUIEvents();
     this.enterLoadout();
 
-    window.addEventListener('resize', () => this.handleResize());
+    const onResize = () => this.handleResize();
+    window.addEventListener('resize', onResize);
+    window.addEventListener('orientationchange', () => {
+      this.handleResize();
+      requestAnimationFrame(() => this.handleResize());
+    });
+    window.visualViewport?.addEventListener('resize', onResize);
+
     this.lastTs = performance.now();
     requestAnimationFrame(this.loop);
+  }
+
+  private getViewportSize(): { width: number; height: number } {
+    const container = this.renderer.domElement.parentElement;
+    const width = Math.max(1, Math.round(container?.clientWidth || window.innerWidth));
+    const height = Math.max(1, Math.round(container?.clientHeight || window.innerHeight));
+    return { width, height };
   }
 
   private defaultMods(): RunMods {
@@ -272,10 +288,10 @@ export class Game {
   }
 
   private handleResize(): void {
-    const w = window.innerWidth;
-    const h = window.innerHeight;
-    this.renderer.setSize(w, h);
-    this.camCtrl.updateResponsiveFov(w, h);
+    const { width, height } = this.getViewportSize();
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    this.renderer.setSize(width, height, false);
+    this.camCtrl.updateResponsiveFov(width, height);
   }
 
   // =========================================================
@@ -1338,8 +1354,10 @@ export class Game {
   }
 
   private handleScreenTap(clientX: number, clientY: number): void {
-    this.ndc.x = (clientX / window.innerWidth) * 2 - 1;
-    this.ndc.y = -(clientY / window.innerHeight) * 2 + 1;
+    const rect = this.renderer.domElement.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return;
+    this.ndc.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+    this.ndc.y = -((clientY - rect.top) / rect.height) * 2 + 1;
     this.raycaster.setFromCamera(this.ndc, this.camera);
     const hits = this.raycaster.intersectObjects(this.turrets.getRaycastMeshes(), false);
     if (hits.length > 0) {

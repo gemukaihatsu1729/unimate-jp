@@ -6,7 +6,7 @@
     <title>ポートフォリオ — 制作実績・技術アーキテクチャ | Unimate JP</title>
     <meta
       name="description"
-      content="Unimate JP の制作ポートフォリオ。TypeScript・Three.js・Web Audio API・Vite を用いたオリジナルブラウザゲーム3作品のケーススタディ、設計・運用アーキテクチャ、技術スタックを紹介しています。"
+      content="Unimate JP の制作ポートフォリオ。TypeScript・Three.js・Web Audio API・Vite を用いたオリジナルブラウザゲーム4作品のケーススタディ、設計・運用アーキテクチャ、技術スタックを紹介しています。"
     />
     <link rel="canonical" href="https://unimate-jp.com/portfolio/" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -176,6 +176,40 @@
                 <a class="btn btn-outline btn-sm" href="/blog/posts/math-expression-parser-vitest/">パーサー＆テスト記事</a>
               </div>
             </article>
+
+            <article class="guide-card">
+              <div class="tag-row">
+                <span class="tag">TypeScript</span>
+                <span class="tag">Three.js (WebGL)</span>
+                <span class="tag tag-amber">無限自動生成シティ</span>
+                <span class="tag tag-neutral">Vitest 14テスト</span>
+              </div>
+              <h3>4. METRO ESCAPE — ローポリ3Dバイク逃走チェイス</h3>
+              <p>
+                スマホの親指1本スライド操作に特化した、ローポリ3Dバイク警察チェイスゲーム。シード値ベースの決定論的チャンクストリーミングにより、どこまでも走り続けられる都市生成と軽快な60fps描画を両立しています。
+              </p>
+              <div class="guide-cols">
+                <div class="guide-box">
+                  <h4>制作背景と解決した課題</h4>
+                  <ul>
+                    <li><strong>課題1（無限都市のメモリ管理）：</strong><code>StreamingCity</code> で 7×7 チャンク（49区画）のみを動的ロード／解放し、チャンク破棄時に <code>InstancedMesh.dispose()</code> を明示してメモリ増加を防止。</li>
+                    <li><strong>課題2（片手操作と爽快感）：</strong>オートアクセル＋<code>SlideInputManager</code> の指1本横スライド操作で鋭いコーナリングとドリフト自動ミニターボを実現。</li>
+                    <li><strong>課題3（直進・狭路ハメ対策）：</strong>全面封鎖検問・白バイの路地裏追尾・<code>computeBustedDelta</code> による失速確保判定で緊張感のある駆け引きを設計。</li>
+                  </ul>
+                </div>
+                <div class="guide-box">
+                  <h4>実装ハイライト・品質管理</h4>
+                  <ul>
+                    <li><strong>シード都市生成：</strong>街区配置・交差点・ジャンプ台・ニトロ缶配置を <code>CityLayout</code> で決定論的に生成し、毎回異なる逃走ルートを構築。</li>
+                    <li><strong>テスト整備：</strong><code>CityLayout</code> / <code>Collision</code> / <code>ResultShare</code> / <code>computeBustedDelta</code> に対し Vitest で14件の自動テストを実装。</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="card-actions">
+                <a class="btn btn-primary btn-sm" href="/games/bikechase/">デモをプレイ →</a>
+                <a class="btn btn-outline btn-sm" href="/games/#guide-bikechase">攻略データ</a>
+              </div>
+            </article>
           </div>
         </div>
       </section>
@@ -213,7 +247,7 @@
                 <tr>
                   <td><strong>品質管理・自動検証</strong></td>
                   <td>Vitest / 独自 <code>verify-dist.mjs</code></td>
-                  <td>合計28件のゲームロジックテストに加え、ビルド成果物の全リンク切れ・サイトマップ整合・広告配置順序を自動検証。</td>
+                  <td>合計42件のゲームロジックテストに加え、ビルド成果物の全リンク切れ・サイトマップ整合・広告配置順序を自動検証。</td>
                 </tr>
                 <tr>
                   <td><strong>ホスティング・CDN</strong></td>
@@ -269,6 +303,7 @@
               <li><a href="/games/mousoutero/">授業中妄想クライシス</a></li>
               <li><a href="/games/zonbi/">SHELTER MUSOU</a></li>
               <li><a href="/games/flashanzan/">無限フラッシュ暗算</a></li>
+              <li><a href="/games/bikechase/">METRO ESCAPE</a></li>
               <li><a href="/portfolio/">ポートフォリオ</a></li>
               <li><a href="/blog/">開発ブログ</a></li>
             </ul>

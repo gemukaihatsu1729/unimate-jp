@@ -1,3 +1,5 @@
+import { isBrowserZoomed } from './ViewportGuard';
+
 export interface TouchState {
   moveX: number;
   moveY: number;
@@ -40,6 +42,7 @@ export class TouchInputManager {
 
   private attackPointerId: number | null = null;
   private attackEl: HTMLElement | null = null;
+  private actionEls: HTMLElement[] = [];
 
   constructor(private onAnyTouch?: () => void) {
     this.joystickZone = document.getElementById('joystick-zone')!;
@@ -128,8 +131,8 @@ export class TouchInputManager {
 
   private bindSwipeAndTap(): void {
     this.swipeZone.addEventListener('pointerdown', (e) => {
-      if (this.swipePointerId !== null) return;
       e.preventDefault();
+      if (this.swipePointerId !== null) return;
       this.onAnyTouch?.();
       this.swipePointerId = e.pointerId;
       this.swipeStartX = e.clientX;
@@ -203,6 +206,7 @@ export class TouchInputManager {
         this.attackPointerId = null;
         this.attackHeld = false;
         this.attackEl?.classList.remove('pressed');
+        for (const btn of this.actionEls) btn.classList.remove('pressed');
         return;
       }
       if (this.joyPointerId !== null) {
@@ -224,15 +228,24 @@ export class TouchInputManager {
     window.addEventListener('touchend', checkRemainingTouches, { passive: true });
     window.addEventListener('touchcancel', checkRemainingTouches, { passive: true });
     window.addEventListener('blur', () => this.reset());
-    window.addEventListener('contextmenu', () => this.reset());
+    window.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      this.reset();
+    });
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) this.reset();
+    });
+    window.visualViewport?.addEventListener('resize', () => {
+      if (isBrowserZoomed()) {
+        this.reset();
+      }
     });
   }
 
   private bindActionBtn(id: string, onPress: () => void): void {
     const el = document.getElementById(id);
     if (!el) return;
+    this.actionEls.push(el);
     el.addEventListener('pointerdown', (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -274,6 +287,7 @@ export class TouchInputManager {
     this.cameraDeltaYaw = 0;
     this.attackHeld = false;
     this.attackEl?.classList.remove('pressed');
+    for (const btn of this.actionEls) btn.classList.remove('pressed');
     this.attackQueued = false;
     this.strongQueued = false;
     this.dodgeQueued = false;

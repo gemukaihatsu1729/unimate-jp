@@ -4,3 +4,5 @@
 /zonbi/* /games/zonbi/:splat 301
 /flashanzan /games/flashanzan/ 301
 /flashanzan/* /games/flashanzan/:splat 301
+/bikechase /games/bikechase/ 301
+/bikechase/* /games/bikechase/:splat 301
