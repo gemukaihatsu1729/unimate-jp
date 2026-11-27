@@ -251,7 +251,7 @@ body {
 }
 
 /* =========================================================
-   GAMEPLAY HUD & TOUCH CONTROLS
+   GAMEPLAY HUD & SMARTPHONE TWO-THUMB CONTROLS
    ========================================================= */
 .touch-zone {
   position: absolute;
@@ -263,28 +263,58 @@ body {
 
 .stick-base {
   position: fixed;
-  width: 96px;
-  height: 96px;
+  left: 20px;
+  bottom: calc(env(safe-area-inset-bottom, 12px) + 20px);
+  width: 116px;
+  height: 116px;
   border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.45);
-  background: rgba(15, 23, 42, 0.28);
-  transform: translate(-50%, -50%);
-  opacity: 0;
+  border: 2px solid rgba(255, 255, 255, 0.36);
+  background: radial-gradient(circle, rgba(15, 23, 42, 0.16) 0%, rgba(15, 23, 42, 0.42) 100%);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
   pointer-events: none;
-  transition: opacity 0.1s;
+  opacity: 0.72;
+  transition: opacity 0.12s, border-color 0.12s;
 }
 .stick-base.active {
+  transform: translate(-50%, -50%);
   opacity: 1;
+  border-color: rgba(251, 191, 36, 0.8);
 }
+.stick-dir {
+  position: absolute;
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.45);
+  line-height: 1;
+}
+.stick-n { top: 7px; left: 50%; transform: translateX(-50%); }
+.stick-s { bottom: 7px; left: 50%; transform: translateX(-50%); }
+.stick-w { left: 7px; top: 50%; transform: translateY(-50%); }
+.stick-e { right: 7px; top: 50%; transform: translateY(-50%); }
+.stick-caption {
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  font-weight: 800;
+  color: rgba(248, 250, 252, 0.78);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.75);
+  white-space: nowrap;
+}
+.stick-base.active .stick-caption {
+  display: none;
+}
+
 .stick-knob {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 40px;
-  height: 40px;
+  width: 46px;
+  height: 46px;
   border-radius: 50%;
-  background: rgba(251, 191, 36, 0.85);
-  border: 2px solid #ffffff;
+  background: radial-gradient(circle at 35% 30%, #fde68a, #f59e0b);
+  border: 2.5px solid #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
   transform: translate(-50%, -50%);
 }
 
@@ -294,34 +324,35 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 8px;
-  padding: max(10px, env(safe-area-inset-top)) 12px 0;
+  gap: 6px;
+  padding: max(8px, env(safe-area-inset-top)) 10px 0;
   pointer-events: none;
 }
 
 .hud-left-col {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
+  min-width: 0;
 }
 
 .hud-row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
 }
 
 .hud-pill {
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 999px;
-  padding: 5px 10px;
-  font-size: 12px;
+  padding: 4px 9px;
+  font-size: 11.5px;
   font-weight: 800;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   backdrop-filter: blur(6px);
 }
 .hk {
@@ -346,18 +377,18 @@ body {
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 999px;
-  padding: 4px 10px;
+  padding: 4px 9px;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   backdrop-filter: blur(6px);
 }
 .fuel-icon {
-  font-size: 12px;
+  font-size: 11px;
 }
 .fuel-track {
-  width: 68px;
-  height: 8px;
+  width: 56px;
+  height: 7px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.14);
   overflow: hidden;
@@ -372,24 +403,25 @@ body {
   background: linear-gradient(90deg, #ef4444, #f97316);
 }
 .fuel-pct {
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
 }
 
 .hud-icons {
   display: flex;
-  gap: 6px;
+  gap: 5px;
+  flex-shrink: 0;
   pointer-events: auto;
 }
 .icon-btn {
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
   border: 1px solid var(--border);
   background: var(--panel);
   color: var(--text);
-  font-size: 16px;
+  font-size: 15px;
   cursor: pointer;
   touch-action: manipulation;
   display: grid;
@@ -399,18 +431,18 @@ body {
 .control-hint {
   position: absolute;
   left: 50%;
-  top: 88px;
+  top: calc(max(8px, env(safe-area-inset-top)) + 68px);
   transform: translateX(-50%);
   z-index: 18;
-  background: rgba(15, 23, 42, 0.8);
+  background: rgba(15, 23, 42, 0.82);
   border: 1px solid rgba(251, 191, 36, 0.45);
   border-radius: 999px;
-  padding: 6px 14px;
-  font-size: 11px;
+  padding: 5px 12px;
+  font-size: 10.5px;
   font-weight: 800;
   color: #fef08a;
   white-space: nowrap;
-  max-width: 92vw;
+  max-width: 94vw;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -418,7 +450,7 @@ body {
 .relay-banner {
   position: absolute;
   left: 50%;
-  top: 126px;
+  top: 120px;
   transform: translateX(-50%);
   z-index: 22;
   background: rgba(15, 23, 42, 0.9);
@@ -445,8 +477,8 @@ body {
 
 .bottom-controls {
   position: absolute;
-  right: 14px;
-  bottom: calc(env(safe-area-inset-bottom, 12px) + 16px);
+  right: 20px;
+  bottom: calc(env(safe-area-inset-bottom, 12px) + 26px);
   z-index: 22;
   pointer-events: none;
 }
@@ -455,28 +487,29 @@ body {
   pointer-events: auto;
   position: relative;
   overflow: hidden;
-  min-width: 144px;
-  height: 54px;
-  padding: 0 18px;
-  border-radius: 999px;
-  border: 2px solid rgba(251, 191, 36, 0.75);
-  background: rgba(15, 23, 42, 0.88);
+  width: 98px;
+  height: 98px;
+  padding: 0;
+  border-radius: 50%;
+  border: 2.5px solid rgba(251, 191, 36, 0.85);
+  background: rgba(15, 23, 42, 0.82);
   color: #ffffff;
-  font-size: 14px;
   font-weight: 900;
-  display: inline-flex;
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 2px;
   cursor: pointer;
   touch-action: none;
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  transition: transform 0.08s;
 }
 .winch-btn.active,
 .winch-btn.pressed {
   border-color: #fef08a;
-  transform: scale(0.96);
-  box-shadow: 0 0 22px rgba(251, 191, 36, 0.65);
+  transform: scale(0.93);
+  box-shadow: 0 0 24px rgba(251, 191, 36, 0.72);
 }
 .winch-btn.overheated {
   border-color: #ef4444;
@@ -485,17 +518,32 @@ body {
 .winch-fill {
   position: absolute;
   left: 0;
-  top: 0;
+  right: 0;
   bottom: 0;
-  width: 100%;
-  background: linear-gradient(90deg, rgba(245, 158, 11, 0.45), rgba(251, 191, 36, 0.72));
+  height: 100%;
+  background: linear-gradient(0deg, rgba(245, 158, 11, 0.52), rgba(251, 191, 36, 0.76));
   z-index: 0;
-  transition: width 0.08s linear;
+  transition: height 0.08s linear;
 }
 .winch-icon,
+.winch-label,
 .winch-text {
   position: relative;
   z-index: 1;
+  line-height: 1.1;
+}
+.winch-icon {
+  font-size: 20px;
+}
+.winch-label {
+  font-size: 13px;
+  font-weight: 900;
+}
+.winch-text {
+  font-size: 10px;
+  font-weight: 800;
+  opacity: 0.92;
+  font-variant-numeric: tabular-nums;
 }
 
 /* =========================================================

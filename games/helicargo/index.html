@@ -74,7 +74,7 @@
 
         <button id="btn-start-game" class="btn-cta" type="button">
           <span class="cta-main">🚁 移送ミッション出動</span>
-          <span class="cta-sub">ドラッグ（PCは矢印/WASD）＋巻上ボタンで振り子を操れ！</span>
+          <span class="cta-sub">左親指でヘリ操縦 · 右親指でロープ巻上！</span>
         </button>
 
         <a class="portal-back-link" href="/games/">← 他のゲームを見る（Unimate JP）</a>
@@ -87,6 +87,11 @@
     <section id="screen-game" class="screen screen-game" aria-label="プレイ画面">
       <div id="touch-zone" class="touch-zone">
         <div id="stick-base" class="stick-base" aria-hidden="true">
+          <span class="stick-dir stick-n">▲</span>
+          <span class="stick-dir stick-s">▼</span>
+          <span class="stick-dir stick-w">◀</span>
+          <span class="stick-dir stick-e">▶</span>
+          <span class="stick-caption">操縦</span>
           <div id="stick-knob" class="stick-knob"></div>
         </div>
       </div>
@@ -127,7 +132,7 @@
       </header>
 
       <div class="control-hint" id="control-hint">
-        👆 画面ドラッグで操縦（PC: WASD/矢印） · 右下ボタン/Spaceでロープ巻上
+        🕹️ 左親指で操縦（画面どこでも可） · 🪝 右ボタン長押しで巻上
       </div>
 
       <div class="relay-banner hidden" id="relay-banner">
@@ -137,10 +142,11 @@
       </div>
 
       <div class="bottom-controls">
-        <button id="btn-winch" class="winch-btn" type="button">
+        <button id="btn-winch" class="winch-btn" type="button" aria-label="ウインチ巻上">
           <div class="winch-fill" id="winch-fill-bar"></div>
           <span class="winch-icon">🪝</span>
-          <span class="winch-text" id="winch-btn-text">巻上 100%</span>
+          <span class="winch-label">巻上</span>
+          <span class="winch-text" id="winch-btn-text">100%</span>
         </button>
       </div>
 

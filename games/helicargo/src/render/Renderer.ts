@@ -139,7 +139,9 @@ export class Renderer {
 
     this.scale = Math.min(this.viewW / MIN_WORLD_W, this.viewH / WORLD_H);
     const logicalH = this.viewH / this.scale;
-    this.worldOffsetY = (logicalH - WORLD_H) * 0.5;
+    // On tall portrait phone screens, keep the flight corridor higher so thumbs sit over the lower meadow
+    this.worldOffsetY =
+      logicalH > WORLD_H ? Math.min(92, (logicalH - WORLD_H) * 0.22) : (logicalH - WORLD_H) * 0.5;
     return {
       logicalW: this.viewW / this.scale,
       logicalH

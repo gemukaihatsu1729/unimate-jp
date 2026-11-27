@@ -16,7 +16,8 @@ export class InputManager {
   private stickOriginY = 0;
   private stickDx = 0;
   private stickDy = 0;
-  private readonly maxRadius = 48;
+  private readonly maxRadius = 54;
+  private readonly followSlack = 14;
 
   private winchPointerIds = new Set<number>();
   private onFirstGesture?: () => void;
@@ -81,6 +82,12 @@ export class InputManager {
     if (this.stickPointerId !== null) return;
 
     this.stickPointerId = ev.pointerId;
+    try {
+      this.touchZone.setPointerCapture(ev.pointerId);
+    } catch {
+      // Ignore synthetic events where pointer capture is unavailable
+    }
+
     this.stickOriginX = ev.clientX;
     this.stickOriginY = ev.clientY;
     this.stickDx = 0;
@@ -88,17 +95,33 @@ export class InputManager {
 
     this.stickBase.style.left = `${ev.clientX}px`;
     this.stickBase.style.top = `${ev.clientY}px`;
+    this.stickBase.style.bottom = 'auto';
     this.stickKnob.style.transform = 'translate(-50%, -50%)';
     this.stickBase.classList.add('active');
   };
 
   private handleStickMove = (ev: PointerEvent): void => {
     if (ev.pointerId !== this.stickPointerId) return;
-    const dx = ev.clientX - this.stickOriginX;
-    const dy = ev.clientY - this.stickOriginY;
+    let dx = ev.clientX - this.stickOriginX;
+    let dy = ev.clientY - this.stickOriginY;
     const dist = Math.hypot(dx, dy);
-    if (dist > this.maxRadius) {
-      const scale = this.maxRadius / dist;
+
+    // Dynamic follow-origin keeps quick reverse swipes responsive on touchscreens
+    if (dist > this.maxRadius + this.followSlack) {
+      const pull = dist - (this.maxRadius + this.followSlack);
+      const nx = dx / dist;
+      const ny = dy / dist;
+      this.stickOriginX += nx * pull;
+      this.stickOriginY += ny * pull;
+      this.stickBase.style.left = `${this.stickOriginX}px`;
+      this.stickBase.style.top = `${this.stickOriginY}px`;
+      dx = ev.clientX - this.stickOriginX;
+      dy = ev.clientY - this.stickOriginY;
+    }
+
+    const clampedDist = Math.hypot(dx, dy);
+    if (clampedDist > this.maxRadius) {
+      const scale = this.maxRadius / clampedDist;
       this.stickDx = dx * scale;
       this.stickDy = dy * scale;
     } else {
@@ -110,10 +133,20 @@ export class InputManager {
 
   private handleStickUp = (ev: PointerEvent): void => {
     if (ev.pointerId !== this.stickPointerId) return;
+    try {
+      if (this.touchZone.hasPointerCapture(ev.pointerId)) {
+        this.touchZone.releasePointerCapture(ev.pointerId);
+      }
+    } catch {
+      // Ignore
+    }
     this.stickPointerId = null;
     this.stickDx = 0;
     this.stickDy = 0;
     this.stickBase.classList.remove('active');
+    this.stickBase.style.left = '';
+    this.stickBase.style.top = '';
+    this.stickBase.style.bottom = '';
     this.stickKnob.style.transform = 'translate(-50%, -50%)';
   };
 
@@ -121,11 +154,23 @@ export class InputManager {
     ev.stopPropagation();
     this.triggerGesture();
     this.winchPointerIds.add(ev.pointerId);
+    try {
+      this.winchBtn.setPointerCapture(ev.pointerId);
+    } catch {
+      // Ignore
+    }
     this.winchBtn.classList.add('pressed');
   };
 
   private handleWinchUp = (ev: PointerEvent): void => {
     if (this.winchPointerIds.delete(ev.pointerId)) {
+      try {
+        if (this.winchBtn.hasPointerCapture(ev.pointerId)) {
+          this.winchBtn.releasePointerCapture(ev.pointerId);
+        }
+      } catch {
+        // Ignore
+      }
       if (this.winchPointerIds.size === 0) {
         this.winchBtn.classList.remove('pressed');
       }
@@ -138,6 +183,10 @@ export class InputManager {
     this.stickDx = 0;
     this.stickDy = 0;
     this.stickBase.classList.remove('active');
+    this.stickBase.style.left = '';
+    this.stickBase.style.top = '';
+    this.stickBase.style.bottom = '';
+    this.stickKnob.style.transform = 'translate(-50%, -50%)';
     this.winchPointerIds.clear();
     this.winchBtn.classList.remove('pressed');
   };
@@ -156,9 +205,16 @@ export class InputManager {
       ky *= inv;
     }
 
-    const sx = this.stickDx / this.maxRadius;
-    const sy = this.stickDy / this.maxRadius;
-    const hasStick = Math.hypot(sx, sy) > 0.08;
+    const rawX = this.stickDx / this.maxRadius;
+    const rawY = this.stickDy / this.maxRadius;
+    const rawMag = Math.hypot(rawX, rawY);
+    let sx = 0;
+    let sy = 0;
+    if (rawMag > 0.06) {
+      const shaped = Math.pow(Math.min(1, (rawMag - 0.06) / 0.94), 1.18);
+      sx = (rawX / rawMag) * shaped;
+      sy = (rawY / rawMag) * shaped;
+    }
 
     const winchKey =
       this.keys.has('Space') ||
@@ -166,8 +222,8 @@ export class InputManager {
       this.keys.has('ShiftRight');
 
     return {
-      thrustX: hasStick ? sx : kx,
-      thrustY: hasStick ? sy : ky,
+      thrustX: rawMag > 0.06 ? sx : kx,
+      thrustY: rawMag > 0.06 ? sy : ky,
       winch: winchKey || this.winchPointerIds.size > 0
     };
   }

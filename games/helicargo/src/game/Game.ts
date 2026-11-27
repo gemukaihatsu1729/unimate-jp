@@ -596,6 +596,7 @@ export class Game {
               this.hp += 1;
             }
             this.targetSectorFloat = this.relaysCleared;
+            this.vibrate([25, 40, 45]);
             this.sound.playRelayClear();
             this.spawnBurst(pad.x, GROUND_Y - 24, 28, '#fde047', 'confetti');
             this.spawnBurst(pad.x, GROUND_Y - 24, 18, '#4ade80', 'confetti');
@@ -679,7 +680,10 @@ export class Game {
           const pts = swingBonus ? 350 : 200;
           this.bonusScore += pts;
           this.fuel = Math.min(MAX_FUEL, this.fuel + 10);
-          if (swingBonus) this.swingCatches += 1;
+          if (swingBonus) {
+            this.swingCatches += 1;
+            this.vibrate(18);
+          }
           this.sound.playStar(swingBonus);
           this.spawnBurst(item.x, item.y, 12, '#fde047', 'spark');
           this.addCallout(
@@ -717,6 +721,7 @@ export class Game {
     }
 
     this.sound.playDamage(isCage);
+    this.vibrate([45, 30, 65]);
     this.spawnBurst(
       isCage ? this.flight.cx : this.flight.hx,
       isCage ? this.flight.cy : this.flight.hy,
@@ -727,6 +732,16 @@ export class Game {
     this.addCallout(this.flight.hx, this.flight.hy - 32, calloutMsg, '#f87171');
     const pool = MASCOT_REACTIONS.damage;
     this.showSpeech(pool[Math.floor(Math.random() * pool.length)], 1.4);
+  }
+
+  private vibrate(pattern: number | number[]): void {
+    try {
+      if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+        navigator.vibrate(pattern);
+      }
+    } catch {
+      // Ignore on unsupported browsers
+    }
   }
 
   private showSpeech(text: string, duration: number): void {
@@ -820,16 +835,16 @@ export class Game {
     // Score
     this.hudScore.textContent = formatScore(this.getTotalScore());
 
-    // Winch button gauge
+    // Circular Winch button liquid gauge (bottom-to-top height fill)
     const stamina = Math.round(this.flight.winchStamina);
-    this.winchFill.style.width = `${stamina}%`;
+    this.winchFill.style.height = `${stamina}%`;
     this.winchBtn.classList.toggle('overheated', this.flight.winchOverheated);
     this.winchBtn.classList.toggle('active', this.flight.winching);
     this.winchText.textContent = this.flight.winchOverheated
-      ? `冷却中 ${stamina}%`
+      ? `冷却 ${stamina}%`
       : this.flight.winching
-        ? `巻上中 ${stamina}%`
-        : `巻上 ${stamina}%`;
+        ? '巻上中'
+        : `${stamina}%`;
   }
 
   private triggerGameOver(reason: 'crash' | 'fuel'): void {
