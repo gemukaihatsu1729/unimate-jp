@@ -1013,73 +1013,84 @@ export class Renderer {
     const lookX = Math.max(-1.6, Math.min(1.6, flight.omega * 0.5 + flight.hvx * 0.004));
 
     if (cargo.id === 'poyo') {
-      // Minimalist lavender marshmallow/teardrop abstract character
+      // Minimalist blue body + red round head abstract character
       const squash = 1 + Math.sin(time * 7 + flight.omega) * 0.04;
       ctx.save();
       ctx.scale(squash, 2 - squash);
 
-      // Stubby waving arms
-      ctx.strokeStyle = '#a78bfa';
+      // Stubby waving blue arms
+      ctx.strokeStyle = '#3b82f6';
       ctx.lineWidth = 4;
       ctx.lineCap = 'round';
       ctx.beginPath();
-      ctx.moveTo(-10, 2);
-      ctx.lineTo(-15, -3 + armWave);
-      ctx.moveTo(10, 2);
-      ctx.lineTo(15, -3 - armWave);
+      ctx.moveTo(-7, 4);
+      ctx.lineTo(-14, -2 + armWave);
+      ctx.moveTo(7, 4);
+      ctx.lineTo(14, -2 - armWave);
       ctx.stroke();
 
-      // Smooth geometric rounded body
-      ctx.fillStyle = '#a78bfa';
-      ctx.strokeStyle = '#7c3aed';
+      // Smooth rounded blue body
+      ctx.fillStyle = '#3b82f6';
+      ctx.strokeStyle = '#1d4ed8';
       ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.ellipse(0, 1, 11.5, 13, 0, 0, Math.PI * 2);
+      ctx.ellipse(0, 7, 9, 9.5, 0, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
 
-      // Soft highlight
-      ctx.fillStyle = 'rgba(237, 233, 254, 0.72)';
+      // Smooth round red face/head
+      ctx.fillStyle = '#ef4444';
+      ctx.strokeStyle = '#b91c1c';
+      ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.ellipse(-4, -5, 4, 2.5, -0.4, 0, Math.PI * 2);
+      ctx.arc(0, -6.5, 9.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // Subtle highlight on head
+      ctx.fillStyle = 'rgba(254, 202, 202, 0.55)';
+      ctx.beginPath();
+      ctx.ellipse(-3.5, -11.5, 3.5, 2, -0.4, 0, Math.PI * 2);
       ctx.fill();
 
-      // 2 minimalist dot eyes (wide or >< when swinging hard)
-      ctx.fillStyle = '#1e1b4b';
+      // 2 minimalist eyes (white sclera + dark pupils, or >< on panic)
       if (panic > 0.65) {
-        ctx.strokeStyle = '#1e1b4b';
-        ctx.lineWidth = 1.7;
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1.8;
         ctx.beginPath();
-        ctx.moveTo(-6, -3);
-        ctx.lineTo(-3, -1);
-        ctx.lineTo(-6, 1);
-        ctx.moveTo(6, -3);
-        ctx.lineTo(3, -1);
-        ctx.lineTo(6, 1);
+        ctx.moveTo(-5.5, -8.5);
+        ctx.lineTo(-2.5, -6.5);
+        ctx.lineTo(-5.5, -4.5);
+        ctx.moveTo(5.5, -8.5);
+        ctx.lineTo(2.5, -6.5);
+        ctx.lineTo(5.5, -4.5);
         ctx.stroke();
       } else {
+        ctx.fillStyle = '#ffffff';
         ctx.beginPath();
-        ctx.arc(-4 + lookX * 0.6, -1, 1.8, 0, Math.PI * 2);
-        ctx.arc(4 + lookX * 0.6, -1, 1.8, 0, Math.PI * 2);
+        ctx.arc(-3.6, -6.8, 2.3, 0, Math.PI * 2);
+        ctx.arc(3.6, -6.8, 2.3, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath();
+        ctx.arc(-3.6 + lookX * 0.55, -6.8, 1.15, 0, Math.PI * 2);
+        ctx.arc(3.6 + lookX * 0.55, -6.8, 1.15, 0, Math.PI * 2);
         ctx.fill();
       }
 
-      // Soft pastel pink cheeks
-      ctx.fillStyle = 'rgba(249, 168, 212, 0.85)';
+      // Small expressive mouth
+      ctx.fillStyle = '#ffffff';
       ctx.beginPath();
-      ctx.arc(-7.5, 2.5, 2, 0, Math.PI * 2);
-      ctx.arc(7.5, 2.5, 2, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Small floating golden orb above head
-      const orbY = -16 + Math.sin(time * 4.5) * 1.5;
-      ctx.fillStyle = '#fde047';
-      ctx.strokeStyle = '#fef9c3';
-      ctx.lineWidth = 1.2;
-      ctx.beginPath();
-      ctx.arc(0, orbY, 3, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
+      if (panic > 0.55) {
+        ctx.arc(0, -2, 2, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1.5;
+        ctx.arc(0, -3.2, 2.2, 0.15 * Math.PI, 0.85 * Math.PI);
+        ctx.stroke();
+      }
       ctx.restore();
     } else if (cargo.id === 'cube') {
       // Minimalist translucent amber jelly cube

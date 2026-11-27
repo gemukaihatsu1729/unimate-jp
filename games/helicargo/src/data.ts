@@ -40,11 +40,11 @@ export interface CargoSpec {
 export const CARGO_TYPES: readonly CargoSpec[] = [
   {
     id: 'poyo',
-    emoji: '🟣',
+    emoji: '🔵',
     name: 'ポヨまる',
     tagline: 'バランス型・抽象マスコット',
     description:
-      'つるんと丸いラベンダー色のやわらかボディと小さな光の粒が浮かぶ抽象キャラクター。揺れに合わせて表情が変わる王道タイプ。',
+      '青いボディと赤い丸い顔のミニマルな抽象キャラクター。揺れに合わせて表情が変わる王道タイプ。',
     ropeBase: 116,
     ropeWinched: 58,
     maxHp: 3,
@@ -53,7 +53,7 @@ export const CARGO_TYPES: readonly CargoSpec[] = [
     dampingWinch: 2.7,
     windSusceptibility: 1.0,
     scoreMult: 1.0,
-    accentColor: '#c084fc'
+    accentColor: '#3b82f6'
   },
   {
     id: 'cube',
