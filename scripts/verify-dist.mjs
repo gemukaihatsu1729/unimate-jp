@@ -75,7 +75,8 @@ function verifyGameResultAds() {
     { slug: 'mousoutero', firstButtonId: 'btn-share-x' },
     { slug: 'zonbi', firstButtonId: 'btn-share-x' },
     { slug: 'flashanzan', firstButtonId: 'btn-share-x' },
-    { slug: 'bikechase', firstButtonId: 'btn-share-x' }
+    { slug: 'bikechase', firstButtonId: 'btn-share-x' },
+    { slug: 'helicargo', firstButtonId: 'btn-share-x' }
   ];
 
   for (const { slug, firstButtonId } of games) {

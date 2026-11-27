@@ -6,3 +6,5 @@
 /flashanzan/* /games/flashanzan/:splat 301
 /bikechase /games/bikechase/ 301
 /bikechase/* /games/bikechase/:splat 301
+/helicargo /games/helicargo/ 301
+/helicargo/* /games/helicargo/:splat 301

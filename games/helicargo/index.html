@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#2b3e70" />
+  <meta
+    name="description"
+    content="夕焼け空の下、ドクターヘリ風の機体でワイヤーカゴに入った抽象マスコットを運び切る2D物理振り子アクションゲーム。スマホの指1本操作・PCキーボード対応で無料プレイ。"
+  />
+  <link rel="canonical" href="https://unimate-jp.com/games/helicargo/" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Unimate JP — 無料ブラウザゲーム" />
+  <meta property="og:title" content="DOCTOR CARGO — 夕焼けヘリ振り子移送アクション" />
+  <meta
+    property="og:description"
+    content="ヘリから吊ったカゴの振り子を操り、鉄塔や風車をかわして中継ヘリポートへ届けよう！スマホ・PC対応2D物理アクション。"
+  />
+  <meta property="og:url" content="https://unimate-jp.com/games/helicargo/" />
+  <meta property="og:image" content="https://unimate-jp.com/games/helicargo/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="DOCTOR CARGO — 夕焼けヘリ振り子移送アクション" />
+  <meta
+    name="twitter:description"
+    content="ヘリのカゴの揺れをコントロールして障害物をすり抜けろ！爽快2D物理振り子移送ゲーム。"
+  />
+  <meta name="twitter:image" content="https://unimate-jp.com/games/helicargo/og-image.png" />
+  <title>DOCTOR CARGO — 夕焼けヘリ振り子移送アクション</title>
+  <script defer src="/common/js/result-ad.js"></script>
+</head>
+<body>
+  <div id="app" class="app-root">
+    <!-- Live 2D Sunset Sky & Helicopter Canvas -->
+    <canvas id="game-canvas"></canvas>
+
+    <!-- Damage Red Vignette -->
+    <div id="hit-flash" class="hit-flash"></div>
+
+    <!-- =========================================================
+         1. TITLE & CARGO SELECT SCREEN
+         ========================================================= -->
+    <section id="screen-title" class="screen screen-title active" aria-label="タイトル画面">
+      <header class="title-header">
+        <div class="title-left">
+          <div class="eyebrow">2D PENDULUM HELI TRANSPORT</div>
+          <h1 class="game-title">DOCTOR <span>CARGO</span></h1>
+        </div>
+        <div class="record-box">
+          <span class="rec-k">BEST SCORE</span>
+          <span class="rec-v" id="best-score-text">-</span>
+        </div>
+      </header>
+
+      <div class="stage-spacer" aria-hidden="true">
+        <div class="stage-chip" id="stage-cargo-chip">🟣 ポヨまる 積載中</div>
+      </div>
+
+      <div class="cargo-dock">
+        <div class="dock-head">
+          <span>移送カーゴ選択</span>
+          <strong id="sel-cargo-tagline">バランス型・抽象マスコット</strong>
+        </div>
+
+        <div class="cargo-grid" id="grid-cargo"></div>
+
+        <div class="cargo-brief" id="cargo-brief">
+          つるんと丸いラベンダー色のやわらかボディと小さな光の粒が浮かぶ抽象キャラクター。揺れに合わせて表情が変わる王道タイプ。
+        </div>
+
+        <button id="btn-start-game" class="btn-cta" type="button">
+          <span class="cta-main">🚁 移送ミッション出動</span>
+          <span class="cta-sub">ドラッグ（PCは矢印/WASD）＋巻上ボタンで振り子を操れ！</span>
+        </button>
+
+        <a class="portal-back-link" href="/games/">← 他のゲームを見る（Unimate JP）</a>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         2. GAMEPLAY HUD & TOUCH CONTROLS
+         ========================================================= -->
+    <section id="screen-game" class="screen screen-game" aria-label="プレイ画面">
+      <div id="touch-zone" class="touch-zone">
+        <div id="stick-base" class="stick-base" aria-hidden="true">
+          <div id="stick-knob" class="stick-knob"></div>
+        </div>
+      </div>
+
+      <header class="hud-top">
+        <div class="hud-left-col">
+          <div class="hud-row">
+            <div class="hud-pill hp-pill" id="hud-hp-row" aria-label="機体耐久">❤️❤️❤️</div>
+            <div class="hud-pill dist-pill">
+              <span class="hk">DIST</span>
+              <span class="hv" id="hud-dist">0 m</span>
+            </div>
+            <div class="hud-pill score-pill">
+              <span class="hk">SCORE</span>
+              <span class="hv" id="hud-score">0</span>
+            </div>
+          </div>
+
+          <div class="hud-row">
+            <div class="fuel-pill">
+              <span class="fuel-icon">⛽</span>
+              <div class="fuel-track">
+                <div class="fuel-fill" id="hud-fuel-fill"></div>
+              </div>
+              <span class="fuel-pct" id="hud-fuel-text">100%</span>
+            </div>
+            <div class="hud-pill relay-pill" id="hud-next-relay">RELAY 450m</div>
+            <div class="hud-pill wind-pill hidden" id="hud-wind-pill">
+              <span id="hud-wind-text">▶ 追い突風</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hud-icons">
+          <button id="btn-mute" class="icon-btn" type="button" aria-label="音声切替">🔊</button>
+          <button id="btn-pause" class="icon-btn" type="button" aria-label="一時停止">⏸</button>
+        </div>
+      </header>
+
+      <div class="control-hint" id="control-hint">
+        👆 画面ドラッグで操縦（PC: WASD/矢印） · 右下ボタン/Spaceでロープ巻上
+      </div>
+
+      <div class="relay-banner hidden" id="relay-banner">
+        <div class="rb-eyebrow">SECTOR COMPLETE</div>
+        <div class="rb-title" id="rb-title">RELAY #1 完了！</div>
+        <div class="rb-desc" id="rb-desc">燃料100%＆HP回復</div>
+      </div>
+
+      <div class="bottom-controls">
+        <button id="btn-winch" class="winch-btn" type="button">
+          <div class="winch-fill" id="winch-fill-bar"></div>
+          <span class="winch-icon">🪝</span>
+          <span class="winch-text" id="winch-btn-text">巻上 100%</span>
+        </button>
+      </div>
+
+      <!-- Pause Modal -->
+      <div class="modal-backdrop hidden" id="modal-pause">
+        <div class="modal-card">
+          <div class="m-eyebrow">PAUSED</div>
+          <h3 class="m-title">移送ミッション一時停止</h3>
+          <div class="stat-strip" id="pause-stats"></div>
+          <div class="m-actions">
+            <button id="btn-resume" class="m-btn primary" type="button">フライトを再開</button>
+            <button id="btn-pause-retry" class="m-btn secondary" type="button">最初から飛ぶ</button>
+            <button id="btn-pause-title" class="m-btn ghost" type="button">カーゴ選択に戻る</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Game Over Modal -->
+      <div class="modal-backdrop hidden" id="modal-gameover">
+        <div class="modal-card">
+          <div class="result-ad" data-result-ad="helicargo" hidden></div>
+
+          <div class="gameover-top-row">
+            <div>
+              <div class="m-eyebrow danger" id="gameover-reason">CARGO DAMAGED</div>
+              <h3 class="m-title" id="gameover-title">衝撃で移送失敗…</h3>
+            </div>
+            <div class="rank-stamp rank-C" id="res-rank-stamp">C</div>
+          </div>
+
+          <div class="record-pill hidden" id="new-record-pill">🏆 NEW RECORD!</div>
+          <div class="hq-quote" id="res-comment"></div>
+
+          <div class="res-grid">
+            <div class="res-cell"><span class="rk">総合スコア</span><span class="rv" id="res-score">0 pt</span></div>
+            <div class="res-cell"><span class="rk">移送距離</span><span class="rv" id="res-dist">0 m</span></div>
+            <div class="res-cell"><span class="rk">中継クリア</span><span class="rv" id="res-relays">0 回</span></div>
+            <div class="res-cell"><span class="rk">振り子キャッチ</span><span class="rv" id="res-swings">0 回</span></div>
+          </div>
+
+          <div class="res-cargo-tag" id="res-cargo-tag"></div>
+
+          <div class="share-section">
+            <div class="share-buttons-row">
+              <button id="btn-share-x" class="btn-share btn-share-x" type="button">𝕏 シェア</button>
+              <button id="btn-share-line" class="btn-share btn-share-line" type="button">LINE</button>
+              <button id="btn-share-native" class="btn-share btn-share-copy" type="button">📤 共有/コピー</button>
+            </div>
+            <div id="share-feedback" class="share-feedback" aria-live="polite"></div>
+          </div>
+
+          <div class="m-actions">
+            <button id="btn-retry-same" class="m-btn primary" type="button">同じカーゴで再出撃</button>
+            <button id="btn-back-title" class="m-btn secondary" type="button">カーゴを変更する</button>
+          </div>
+          <a class="portal-back-link" href="/games/">← ゲームポータルへ戻る（Unimate JP）</a>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

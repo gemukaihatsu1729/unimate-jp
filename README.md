@@ -12,6 +12,7 @@ https://unimate-jp.com/
 │   ├── zonbi/                SHELTER MUSOU — 3Dゾンビ無双防衛
 │   ├── flashanzan/           無限フラッシュ暗算
 │   └── bikechase/            METRO ESCAPE — ローポリ3Dバイク逃走チェイス
+│   └── helicargo/            DOCTOR CARGO — 2D夕焼けヘリ振り子移送アクション
 ├── /portfolio/               制作ポートフォリオ（ケーススタディ・技術構成）
 ├── /blog/                    個人開発・技術ブログ（全8記事＋カテゴリ絞り込み）
 ├── /about/                   運営者情報
@@ -37,6 +38,7 @@ npm run dev:mousoutero
 npm run dev:zonbi
 npm run dev:flashanzan
 npm run dev:bikechase
+npm run dev:helicargo
 
 # 全ゲームのユニットテスト実行
 npm test

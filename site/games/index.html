@@ -62,12 +62,38 @@
       <section class="section">
         <div class="container">
           <div class="filter-bar" role="group" aria-label="ジャンル絞り込み">
-            <button class="filter-btn is-active" type="button" data-filter="all">すべて (4)</button>
-            <button class="filter-btn" type="button" data-filter="action">3Dアクション・チェイス (3)</button>
+            <button class="filter-btn is-active" type="button" data-filter="all">すべて (5)</button>
+            <button class="filter-btn" type="button" data-filter="action">アクション・チェイス (4)</button>
             <button class="filter-btn" type="button" data-filter="math">数学・脳トレ (1)</button>
           </div>
 
           <div class="grid-2">
+            <article class="card" data-category="action">
+              <a class="game-thumb" href="/games/helicargo/">
+                <img
+                  src="/games/helicargo/og-image.png"
+                  alt="DOCTOR CARGO — 夕焼けヘリ振り子移送アクション"
+                  width="1200"
+                  height="630"
+                />
+              </a>
+              <div class="card-body">
+                <div class="tag-row">
+                  <span class="tag tag-amber">NEW</span>
+                  <span class="tag">2D物理アクション</span>
+                  <span class="tag tag-neutral">振り子運搬</span>
+                </div>
+                <h2 class="card-title"><a href="/games/helicargo/">DOCTOR CARGO</a></h2>
+                <p class="card-desc">
+                  ドクターヘリ風の機体から吊り下げたワイヤーケージの振り子を操り、高圧鉄塔・気球・風車・突風をすり抜けて中継ヘリポートを目指す2D物理移送アクション。
+                </p>
+                <div class="card-actions">
+                  <a class="btn btn-primary btn-sm" href="/games/helicargo/">プレイする →</a>
+                  <a class="btn btn-outline btn-sm" href="#guide-helicargo">攻略データ</a>
+                </div>
+              </div>
+            </article>
+
             <article class="card" data-category="action">
               <a class="game-thumb" href="/games/bikechase/">
                 <img
@@ -79,7 +105,6 @@
               </a>
               <div class="card-body">
                 <div class="tag-row">
-                  <span class="tag tag-amber">NEW</span>
                   <span class="tag">3Dバイク逃走</span>
                   <span class="tag tag-neutral">タイムサバイバル</span>
                 </div>
@@ -668,6 +693,51 @@
                 <a class="btn btn-primary btn-sm" href="/games/bikechase/">METRO ESCAPE を遊ぶ →</a>
               </div>
             </article>
+
+            <!-- 5. DOCTOR CARGO -->
+            <article id="guide-helicargo" class="guide-card">
+              <div class="tag-row">
+                <span class="tag tag-amber">2D物理振り子アクション</span>
+                <span class="tag tag-neutral">ドラッグ / WASD操作</span>
+                <span class="tag tag-neutral">ウインチ巻上制御</span>
+                <span class="tag tag-neutral">中継ヘリポート補給</span>
+              </div>
+              <h3>5. DOCTOR CARGO — 夕焼けヘリ振り子移送アクション</h3>
+              <p>
+                夕焼け空の下、ドクターヘリ風の機体から4本のロープで吊られたワイヤーケージを運び続ける2D物理振り子アクションです。
+                ヘリの加速・減速で生まれる振り子の揺れを読み、ウインチ巻上で姿勢を整えながら鉄塔・気球・風力タービン・突風地帯を抜けて中継ヘリポート（450m・950m・1500m…）を目指します。
+              </p>
+
+              <div class="guide-cols">
+                <div class="guide-box">
+                  <h4>基本操作とスコアテクニック</h4>
+                  <ul>
+                    <li><strong>ドラッグ操縦（PCは WASD / 矢印キー）：</strong>8方向へ機体を自在に操縦。加速するとカゴが後ろに振れ、逆方向へ軽く切り返すと揺れを打ち消せます。</li>
+                    <li><strong>🪝 ウインチ巻上（右下ボタン / Space / Shift）：</strong>押している間ロープを巻き上げてカゴを機体直下へ近づけ、揺れを強力に減衰させます（スタミナ制）。</li>
+                    <li><strong>SWING CATCH &amp; ニアミス：</strong>カゴ側でスターリングを通過すると <strong>+350pt</strong>、障害物スレスレ通過で <strong>CLOSE! ボーナス</strong>（最大5コンボ）。</li>
+                    <li><strong>中継ヘリポート着地：</strong>450m ごとに現れる緑の <code>H</code> パッドへカゴをそっと降ろすと燃料100%＆HP回復！</li>
+                  </ul>
+                </div>
+                <div class="guide-box">
+                  <h4>選択できる移送カーゴ 3種とランク基準</h4>
+                  <ul>
+                    <li><strong>🟣 ポヨまる（HP3 / ×1.00）：</strong>バランス型。標準ロープ長（116→58）で扱いやすい王道キャラクター。</li>
+                    <li><strong>🟡 ぷるんキューブ（HP3 / ×1.25）：</strong>長ロープ（132→64）で大きく揺れるがスコア1.25倍の高得点向け。</li>
+                    <li><strong>⚪ メカカプセル（HP4 / ×0.95）：</strong>短ロープ（102→54）＆高重量で突風・揺れに強い安定型。</li>
+                    <li><strong>ランク基準：</strong>SS（18,000pt以上 または 2,000m到達）／ S（11,000pt〜）／ A（6,000pt〜）／ B（2,500pt〜）</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="callout">
+                <strong>S〜SSランク攻略のコツ：</strong> 常時ウインチを押し続けるとオーバーヒートで肝心な時に巻けなくなります。
+                広い空域ではロープを伸ばしたまま飛び、鉄塔・風車・クレインゲートの手前だけ巻上ボタンをチョン押しして安定通過するのが高評価の秘訣です。
+              </div>
+
+              <div class="card-actions">
+                <a class="btn btn-primary btn-sm" href="/games/helicargo/">DOCTOR CARGO を遊ぶ →</a>
+              </div>
+            </article>
           </div>
         </div>
       </section>
@@ -693,6 +763,7 @@
               <li><a href="/games/zonbi/">SHELTER MUSOU</a></li>
               <li><a href="/games/flashanzan/">無限フラッシュ暗算</a></li>
               <li><a href="/games/bikechase/">METRO ESCAPE</a></li>
+              <li><a href="/games/helicargo/">DOCTOR CARGO</a></li>
               <li><a href="/portfolio/">ポートフォリオ</a></li>
               <li><a href="/blog/">開発ブログ</a></li>
             </ul>

@@ -66,4 +66,5 @@ server.listen(port, '127.0.0.1', () => {
   console.log(`          http://127.0.0.1:${port}/games/zonbi/`);
   console.log(`          http://127.0.0.1:${port}/games/flashanzan/`);
   console.log(`          http://127.0.0.1:${port}/games/bikechase/`);
+  console.log(`          http://127.0.0.1:${port}/games/helicargo/`);
 });

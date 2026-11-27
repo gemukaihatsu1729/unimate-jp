@@ -6,7 +6,7 @@
     <title>ポートフォリオ — 制作実績・技術アーキテクチャ | Unimate JP</title>
     <meta
       name="description"
-      content="Unimate JP の制作ポートフォリオ。TypeScript・Three.js・Web Audio API・Vite を用いたオリジナルブラウザゲーム4作品のケーススタディ、設計・運用アーキテクチャ、技術スタックを紹介しています。"
+      content="Unimate JP の制作ポートフォリオ。TypeScript・Three.js・HTML5 Canvas・Web Audio API・Vite を用いたオリジナルブラウザゲーム5作品のケーススタディ、設計・運用アーキテクチャ、技術スタックを紹介しています。"
     />
     <link rel="canonical" href="https://unimate-jp.com/portfolio/" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -210,6 +210,39 @@
                 <a class="btn btn-outline btn-sm" href="/games/#guide-bikechase">攻略データ</a>
               </div>
             </article>
+
+            <article class="guide-card">
+              <div class="tag-row">
+                <span class="tag">TypeScript</span>
+                <span class="tag">HTML5 Canvas 2D</span>
+                <span class="tag tag-amber">2D物理振り子</span>
+                <span class="tag tag-neutral">Vitest 8テスト</span>
+              </div>
+              <h3>5. DOCTOR CARGO — 夕焼けヘリ振り子移送アクション</h3>
+              <p>
+                ヘリコプターの加減速に連動してワイヤーケージが揺れる結合振り子物理（<code>PendulumPhysics</code>）と、夕焼けから夜明けへ移り変わるプロシージャル2D描画を組み合わせた横スクロール運搬ゲームです。
+              </p>
+              <div class="guide-cols">
+                <div class="guide-box">
+                  <h4>制作背景と解決した課題</h4>
+                  <ul>
+                    <li><strong>課題1（振り子物理の数値安定性）：</strong>可変フレームや壁接触時の暴走を防ぐため 1/120 秒サブステップ積分と加速度・角度クランプを実装。</li>
+                    <li><strong>課題2（スマホ縦横両対応の視野確保）：</strong>動的論理スケーリング（<code>Math.min(viewW/540, viewH/640)</code>）で縦画面でも前方の障害物を十分に見渡せる設計。</li>
+                  </ul>
+                </div>
+                <div class="guide-box">
+                  <h4>実装ハイライト・品質管理</h4>
+                  <ul>
+                    <li><strong>通過保証付きシード生成：</strong><code>LevelGenerator</code> が全障害物で最低 190 論理単位の飛行通路と中継パッド周辺の安全バッファを保証。</li>
+                    <li><strong>テスト整備：</strong><code>PendulumPhysics</code> / 回転風車線分判定 / <code>LevelGenerator</code> / <code>ResultShare</code> に対し Vitest で8件の自動テストを実装。</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="card-actions">
+                <a class="btn btn-primary btn-sm" href="/games/helicargo/">デモをプレイ →</a>
+                <a class="btn btn-outline btn-sm" href="/games/#guide-helicargo">攻略データ</a>
+              </div>
+            </article>
           </div>
         </div>
       </section>
@@ -247,7 +280,7 @@
                 <tr>
                   <td><strong>品質管理・自動検証</strong></td>
                   <td>Vitest / 独自 <code>verify-dist.mjs</code></td>
-                  <td>合計42件のゲームロジックテストに加え、ビルド成果物の全リンク切れ・サイトマップ整合・広告配置順序を自動検証。</td>
+                  <td>合計50件のゲームロジックテストに加え、ビルド成果物の全リンク切れ・サイトマップ整合・広告配置順序を自動検証。</td>
                 </tr>
                 <tr>
                   <td><strong>ホスティング・CDN</strong></td>
@@ -304,6 +337,7 @@
               <li><a href="/games/zonbi/">SHELTER MUSOU</a></li>
               <li><a href="/games/flashanzan/">無限フラッシュ暗算</a></li>
               <li><a href="/games/bikechase/">METRO ESCAPE</a></li>
+              <li><a href="/games/helicargo/">DOCTOR CARGO</a></li>
               <li><a href="/portfolio/">ポートフォリオ</a></li>
               <li><a href="/blog/">開発ブログ</a></li>
             </ul>
